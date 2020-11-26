@@ -1,14 +1,17 @@
 import pygame
-import math
+from math import pi, floor
 from worm import Worm
+from random import randint, random
 
 
 class Game:
+    # setting:
     screen_resolution = (1200, 1200)
-    turn_speed = math.pi / 80
-    fullCircle = math.pi * 2
+    turn_speed = pi / 80
+    fullCircle = pi * 2
     fps = 10
     angleDelta = 0.3
+    spawnDistanceToBorder = 200
 
     def __init__(self):
         pygame.init()
@@ -18,15 +21,22 @@ class Game:
         self.font = pygame.font.SysFont('default', 20)
         self.clock = pygame.time.Clock()
         self.surface = pygame.display.set_mode(self.screen_resolution, 0, 32)
-        self.mainWorm = Worm(name="player1", coord=[100, 100], color=(0, 0, 255), surface=self.surface)
-        self.mainWorm = Worm(name="player1", coord=[100, 100], color=(0, 0, 255), surface=self.surface)
-        self.keys = {'a': 0, 'b': 0}
+
+        self.mainWorm = Worm(
+            name="player1",
+            coord=[
+                randint(self.spawnDistanceToBorder, self.screen_resolution[0] - self.spawnDistanceToBorder),
+                randint(self.spawnDistanceToBorder, self.screen_resolution[1] - self.spawnDistanceToBorder)
+            ],
+            color=(0, 0, 255),
+            surface=self.surface,
+            angle=random() * self.fullCircle
+        )
 
     def start(self):
         running = True
 
         while running:
-
             running = self.handle_input()
             self.calc()
             self.draw()
@@ -40,15 +50,17 @@ class Game:
 
         pKeys = pygame.key.get_pressed()
 
-        self.keys['a'] = pKeys[pygame.K_a]
-        self.keys['d'] = pKeys[pygame.K_d]
+        changed = False
 
         if pKeys[pygame.K_a] == 1:
             self.mainWorm.angle -= self.angleDelta
+            changed = True
         if pKeys[pygame.K_d] == 1:
             self.mainWorm.angle += self.angleDelta
+            changed = True
 
-        self.mainWorm.angle %= self.fullCircle
+        if changed:
+            self.mainWorm.angle %= self.fullCircle
 
         try:
             qEvent = next(event for event in pygame.event.get() if event.type == pygame.QUIT)
@@ -64,7 +76,7 @@ class Game:
         self.surface.fill((255, 255, 255))
 
         # display fps:
-        fpsText = self.font.render('FPS: ' + str(math.floor(self.clock.get_fps())), False, (0, 0, 0))
+        fpsText = self.font.render('FPS: ' + str(floor(self.clock.get_fps())), False, (0, 0, 0))
         self.surface.blit(fpsText, (0, 0))
 
         self.mainWorm.draw()

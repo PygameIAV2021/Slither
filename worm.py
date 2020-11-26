@@ -12,13 +12,13 @@ import math
 
 class Worm:
 
-    def __init__(self, name, coord, surface, color, length=10, radius=10):
+    def __init__(self, name, coord, surface, color, angle=0, length=10, radius=10):
         self.name = name
 
         self.body = []
         self.distance = 10
         self.speed = 2
-        self.angle = 0
+        self.angle = angle
         self.color = color
 
         for i in range(1, length):
