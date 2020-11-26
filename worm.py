@@ -16,7 +16,7 @@ class Worm:
         self.name = name
 
         self.body = []
-        self.distance = 3
+        self.distance = 10
         self.speed = 2
         self.angle = 0
         self.color = color
@@ -29,23 +29,20 @@ class Worm:
 
             self.body.append(circle)
 
-            coord = [coord[0] - self.distance, coord[1] - self.speed]
-            coord = [coord[0] - self.distance, coord[1] - self.speed]
+            coord = [
+                coord[0] - math.cos(self.angle) * (self.speed + self.distance),
+                coord[1] - math.sin(self.angle) * (self.speed + self.distance)
+            ]
 
-            print(len(self.body))
-            print(id(self.body[0].coord))
-            print(id(self.body[-1].coord))
-            print(coord)
-
-    def move(self, distance = 0):
+    def move(self):
         oldHead = self.body[0]
         newHead = self.body.pop()
 
         newHead.color = oldHead.color
         oldHead.color = self.color
 
-        newHead.coord[0] = oldHead.coord[0] + math.cos(self.angle) * (self.speed + distance)
-        newHead.coord[1] = oldHead.coord[1] + math.sin(self.angle) * (self.speed + distance)
+        newHead.coord[0] = oldHead.coord[0] + math.cos(self.angle) * (self.speed + self.distance)
+        newHead.coord[1] = oldHead.coord[1] + math.sin(self.angle) * (self.speed + self.distance)
 
         self.body.insert(0, newHead)
 

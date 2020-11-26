@@ -4,8 +4,11 @@ from worm import Worm
 
 
 class Game:
-    screen_resolution = (500, 500)
+    screen_resolution = (1200, 1200)
     turn_speed = math.pi / 80
+    fullCircle = math.pi * 2
+    fps = 10
+    angleDelta = 0.3
 
     def __init__(self):
         pygame.init()
@@ -29,7 +32,7 @@ class Game:
             self.draw()
 
             # max fps
-            self.clock.tick(4)
+            self.clock.tick(self.fps)
 
         pygame.quit()
 
@@ -39,6 +42,13 @@ class Game:
 
         self.keys['a'] = pKeys[pygame.K_a]
         self.keys['d'] = pKeys[pygame.K_d]
+
+        if pKeys[pygame.K_a] == 1:
+            self.mainWorm.angle -= self.angleDelta
+        if pKeys[pygame.K_d] == 1:
+            self.mainWorm.angle += self.angleDelta
+
+        self.mainWorm.angle %= self.fullCircle
 
         try:
             qEvent = next(event for event in pygame.event.get() if event.type == pygame.QUIT)
