@@ -20,19 +20,15 @@ class Worm:
         self.speed = 2
         self.angle = angle
         self.color = color
+        self.surface = surface
+        self.radius = radius
+
+        head = Circle(coord, radius, self.color, self.surface)
+        head.color = (255, 0, 0) # head color
+        self.body.append(head)
 
         for i in range(1, length):
-            circle = Circle(coord, radius, self.color, surface)
-
-            if i == 1:
-                circle.color = (255, 0, 0)
-
-            self.body.append(circle)
-
-            coord = [
-                coord[0] - math.cos(self.angle) * (self.speed + self.distance),
-                coord[1] - math.sin(self.angle) * (self.speed + self.distance)
-            ]
+            self.addBodyPart()
 
     def move(self):
         oldHead = self.body[0]
@@ -49,3 +45,15 @@ class Worm:
     def draw(self):
         for circle in self.body[::-1]:
             circle.draw()
+
+    def addBodyPart(self):
+        """ add an circle object at the end of the body"""
+        coord = self.body[-1].coord
+
+        coord = [
+            coord[0] - math.cos(self.angle) * (self.speed + self.distance),
+            coord[1] - math.sin(self.angle) * (self.speed + self.distance)
+        ]
+
+        circle = Circle(coord, self.radius, self.color, self.surface)
+        self.body.append(circle)
