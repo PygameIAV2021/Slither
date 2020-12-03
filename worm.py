@@ -57,3 +57,10 @@ class Worm:
 
         circle = Circle(coord, self.radius, self.color, self.surface)
         self.body.append(circle)
+
+    def getHead(self):
+        return self.body[0]
+
+    def eat(self, food):
+        for i in range(1, food.energy):
+            self.addBodyPart()

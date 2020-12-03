@@ -13,6 +13,7 @@ class Game:
     fps = 10
     angleDelta = 0.3
     spawnDistanceToBorder = 200
+    maxNumberOfFood = 5
 
     def __init__(self):
         pygame.init()
@@ -71,8 +72,9 @@ class Game:
 
     def calc(self):
         self.mainWorm.move()
+        self.checkCollisionWithFood()
 
-        if random() > 0.97:
+        if len(f.foodHolder) <= self.maxNumberOfFood and random() > 0.97:
             f.addFood(self.surface, self.screen_resolution)
 
         return 0
@@ -90,3 +92,13 @@ class Game:
         self.mainWorm.draw()
 
         pygame.display.update()
+
+    def checkCollisionWithFood(self):
+        head = self.mainWorm.getHead()
+
+        for food in f.foodHolder:
+            if food.checkCollision(head):
+                self.mainWorm.eat(food)
+                f.foodHolder.remove(food)
+                del food
+                break
