@@ -2,6 +2,7 @@ import pygame
 from math import pi, floor
 from worm import Worm
 from random import randint, random
+import food as f
 
 
 class Game:
@@ -70,6 +71,10 @@ class Game:
 
     def calc(self):
         self.mainWorm.move()
+
+        if random() > 0.97:
+            f.addFood(self.surface, self.screen_resolution)
+
         return 0
 
     def draw(self):
@@ -78,6 +83,9 @@ class Game:
         # display fps:
         fpsText = self.font.render('FPS: ' + str(floor(self.clock.get_fps())), False, (0, 0, 0))
         self.surface.blit(fpsText, (0, 0))
+
+        for food in f.foodHolder:
+            food.draw()
 
         self.mainWorm.draw()
 
