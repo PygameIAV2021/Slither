@@ -40,6 +40,7 @@ class Game:
 
         while running:
             running = self.handle_input()
+            self.move()
             self.calc()
             self.draw()
 
@@ -71,13 +72,16 @@ class Game:
             return True
 
     def calc(self):
-        self.mainWorm.move()
-        self.checkCollisionWithFood()
 
         if len(f.foodHolder) <= self.maxNumberOfFood and random() > 0.97:
             f.addFood(self.surface, self.screen_resolution)
 
-        return 0
+        self.checkCollisionWithFood()
+
+    def move(self):
+        self.mainWorm.move()
+        for food in f.foodHolder:
+            food.move()
 
     def draw(self):
         self.surface.fill((255, 255, 255))
