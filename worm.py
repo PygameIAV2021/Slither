@@ -8,6 +8,7 @@ Created on Tue Nov 10 17:28:45 2020
 
 from circle import Circle
 import math
+from settings import screen_resolution
 
 
 class Worm:
@@ -39,6 +40,13 @@ class Worm:
 
         newHead.coord[0] = oldHead.coord[0] + math.cos(self.angle) * (self.speed + self.distance)
         newHead.coord[1] = oldHead.coord[1] + math.sin(self.angle) * (self.speed + self.distance)
+
+        # when the head is out of screen, set it to the opposite side:
+        for axis in range(2):
+            if newHead.coord[axis] > screen_resolution[axis]:
+                newHead.coord[axis] -= screen_resolution[axis]
+            elif newHead.coord[axis] < 0:
+                newHead.coord[axis] += screen_resolution[axis]
 
         self.body.insert(0, newHead)
 
