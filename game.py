@@ -3,17 +3,13 @@ from math import pi, floor
 from worm import Worm
 from random import randint, random
 import food as f
+import settings
 
 
 class Game:
     # setting:
-    screen_resolution = (1200, 1200)
     turn_speed = pi / 80
     fullCircle = pi * 2
-    fps = 10
-    angleDelta = 0.3
-    spawnDistanceToBorder = 200
-    maxNumberOfFood = 5
 
     def __init__(self):
         pygame.init()
@@ -22,13 +18,13 @@ class Game:
 
         self.font = pygame.font.SysFont('default', 20)
         self.clock = pygame.time.Clock()
-        self.surface = pygame.display.set_mode(self.screen_resolution, 0, 32)
+        self.surface = pygame.display.set_mode(settings.screen_resolution, 0, 32)
 
         self.mainWorm = Worm(
             name="player1",
             coord=[
-                randint(self.spawnDistanceToBorder, self.screen_resolution[0] - self.spawnDistanceToBorder),
-                randint(self.spawnDistanceToBorder, self.screen_resolution[1] - self.spawnDistanceToBorder)
+                randint(settings.spawnDistanceToBorder, settings.screen_resolution[0] - settings.spawnDistanceToBorder),
+                randint(settings.spawnDistanceToBorder, settings.screen_resolution[1] - settings.spawnDistanceToBorder)
             ],
             color=(0, 0, 255),
             surface=self.surface,
@@ -45,7 +41,7 @@ class Game:
             self.draw()
 
             # max fps
-            self.clock.tick(self.fps)
+            self.clock.tick(settings.fps)
 
         pygame.quit()
 
@@ -56,10 +52,10 @@ class Game:
         changed = False
 
         if pKeys[pygame.K_a] == 1:
-            self.mainWorm.angle -= self.angleDelta
+            self.mainWorm.angle -= settings.angleDelta
             changed = True
         if pKeys[pygame.K_d] == 1:
-            self.mainWorm.angle += self.angleDelta
+            self.mainWorm.angle += settings.angleDelta
             changed = True
 
         if changed:
@@ -73,8 +69,8 @@ class Game:
 
     def calc(self):
 
-        if len(f.foodHolder) <= self.maxNumberOfFood and random() > 0.97:
-            f.addFood(self.surface, self.screen_resolution)
+        if len(f.foodHolder) <= settings.maxNumberOfFood and random() > 0.97:
+            f.addFood(self.surface, settings.screen_resolution)
 
         self.checkCollisionWithFood()
 
