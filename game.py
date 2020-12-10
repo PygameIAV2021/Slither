@@ -70,7 +70,7 @@ class Game:
     def calc(self):
 
         if len(f.foodHolder) <= settings.maxNumberOfFood and random() > 0.97:
-            f.addFood(self.surface, settings.screen_resolution)
+            f.addFood(self.surface)
 
         self.checkCollisionWithFood()
 

@@ -9,6 +9,8 @@ Created on Tue Nov 10 17:41:55 2020
 import pygame
 import math
 
+from settings import screen_resolution
+
 
 class Circle:
 
@@ -30,3 +32,11 @@ class Circle:
         diff = math.sqrt(diffX ** 2 + diffY ** 2)
 
         return (diff - self.radius - other_circle.radius) <= 0
+
+    def handleOutOfScreen(self):
+        """ when the circle is out of screen, set it to the opposite side"""
+        for axis in range(2):
+            if self.coord[axis] > screen_resolution[axis]:
+                self.coord[axis] -= screen_resolution[axis]
+            elif self.coord[axis] < 0:
+                self.coord[axis] += screen_resolution[axis]
