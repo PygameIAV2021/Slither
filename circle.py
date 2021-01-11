@@ -14,24 +14,37 @@ from settings import screen_resolution
 
 class Circle:
 
-    def __init__(self, coord, radius, color, surface):
+    def __init__(self, coord, radius, color, surface, angle, speed):
         self.coord = coord
         self.radius = radius
         self.diameter = radius * 2
         self.color = color
         self.surface = surface
+        self.angle = angle
+        self.speed = speed
+
+    def move(self, newAngle = None):
+
+        if newAngle is not None:
+            self.angle = newAngle
+
+        self.coord[0] += math.cos(self.angle) * self.speed
+        self.coord[1] += math.sin(self.angle) * self.speed
 
     def draw(self):
         pygame.draw.circle(self.surface, self.color, (math.floor(self.coord[0]), math.floor(self.coord[1])),
                            self.radius)
 
     def checkCollision(self, other_circle):
+        return self.getDistanceBorder(other_circle) <= 0
+
+    def getDistanceBorder(self, other_circle):
+        return self.getDistanceCenter(other_circle) - self.radius - other_circle.radius
+
+    def getDistanceCenter(self, other_circle):
         diffX = self.coord[0] - other_circle.coord[0]
         diffY = self.coord[1] - other_circle.coord[1]
-
-        diff = math.sqrt(diffX ** 2 + diffY ** 2)
-
-        return (diff - self.radius - other_circle.radius) <= 0
+        return math.sqrt(diffX ** 2 + diffY ** 2)
 
     def handleOutOfScreen(self):
         """ when the circle is out of screen, set it to the opposite side"""
