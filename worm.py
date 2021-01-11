@@ -56,9 +56,9 @@ class Worm:
             for axis in range(2):
                 if abs(d[axis]) >= screen_resolution[axis] - self.body[i].diameter:
                     if self.body[i - 1].coord[axis] > self.halfScreen[axis]:
-                        d[axis] -= screen_resolution[axis]  # left out
+                        d[axis] -= screen_resolution[axis]  # left or top out
                     else:
-                        d[axis] += screen_resolution[axis]  # right out
+                        d[axis] += screen_resolution[axis]  # right or bottom out
 
             angle = math.atan2(d[1], d[0])
             angle %= fullCircle
