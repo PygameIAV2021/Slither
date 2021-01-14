@@ -6,7 +6,6 @@ Created on Tue Nov 10 17:41:55 2020
 @author: dustin
 """
 
-import pygame
 import math
 
 from settings import screen_resolution
@@ -32,6 +31,7 @@ class Circle:
         self.coord[1] += math.sin(self.angle) * self.speed
 
     def draw(self):
+        import pygame
         pygame.draw.circle(self.surface, self.color, (math.floor(self.coord[0]), math.floor(self.coord[1])),
                            self.radius)
 

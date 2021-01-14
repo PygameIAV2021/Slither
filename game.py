@@ -1,4 +1,3 @@
-import pygame
 from math import pi, floor
 from worm import Worm
 from random import randint, random
@@ -36,6 +35,8 @@ class Game:
             )
 
     def iniPygame(self):
+        import pygame
+
         pygame.init()
         pygame.font.init()
         pygame.display.set_caption('slither')
@@ -111,6 +112,7 @@ class Game:
 
     def getInput(self, userInput):
 
+        import pygame
         pKeys = pygame.key.get_pressed()
 
         changed = False
@@ -164,6 +166,7 @@ class Game:
             food.move()
 
     def draw(self):
+        import pygame
         self.surface.fill((255, 255, 255))
 
         # display fps:
