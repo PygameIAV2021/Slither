@@ -1,27 +1,29 @@
 import asyncio
 import queue
+from game import Game
 
-from Message import Message, Command
+from Message import Message, MesType
 
 from autobahn.asyncio.websocket import WebSocketClientProtocol, WebSocketClientFactory
 
 mesToSend = queue.Queue()
 
+
 class MyClientProtocol(WebSocketClientProtocol):
 
     def onConnect(self, response):
-        print("Server connected: {0}".format(response.peer))
+        print("connected to sever: {0}".format(response.peer))
 
     async def onOpen(self):
         print("WebSocket connection open.")
 
-        message = Message('Dustin', Command.HelloServer, 'lalal')
+        game = Game(self)
+        await game.start()
+
+        message = Message(MesType.HelloServer, 'Guten Tag Server')
         print("send: ", message.serialize())
         self.sendMessage(message.serialize())
 
-        # start sending messages every second ..
-        while True:
-            await asyncio.sleep(1)
 
     def onMessage(self, payload, isBinary):
         if not isBinary:
@@ -29,6 +31,7 @@ class MyClientProtocol(WebSocketClientProtocol):
 
     def onClose(self, wasClean, code, reason):
         print("WebSocket connection closed: {0}".format(reason))
+
 
 class Client:
 
@@ -41,7 +44,7 @@ class Client:
         self.__coroutine = None
         self.__loop = None
 
-    def connect(self):
+    def start(self):
         factory = WebSocketClientFactory(f"ws://{self.__host}:{self.__port}")
         factory.protocol = MyClientProtocol
 
@@ -55,7 +58,8 @@ class Client:
         if self.__loop is asyncio.AbstractEventLoop:
             self.__loop.close()
 
+
 client = Client('Dustin', 'localhost', 9000)
-client.connect()
+client.start()
 
 print('blub')

@@ -5,13 +5,23 @@ from random import randint, random
 import food as f
 import settings
 
+from Message import Message, MesType
+import asyncio
+import queue
+
+
+# user input status bits
+class InputStatus:
+    a = 1
+    d = 2
+    a_changed = 4
+    d_changed = 8
 
 class Game:
     # setting:
-    turn_speed = pi / 80
     fullCircle = pi * 2
 
-    def __init__(self):
+    def __init__(self, client):
         pygame.init()
         pygame.font.init()
         pygame.display.set_caption('slither')
@@ -19,6 +29,8 @@ class Game:
         self.font = pygame.font.SysFont('default', 20)
         self.clock = pygame.time.Clock()
         self.surface = pygame.display.set_mode(settings.screen_resolution, 0, 32)
+        self.client = client
+        self.run = True
 
         self.mainWorm = Worm(
             name="player1",
@@ -27,15 +39,25 @@ class Game:
                 randint(settings.spawnDistanceToBorder, settings.screen_resolution[1] - settings.spawnDistanceToBorder)
             ],
             color=(0, 0, 255),
-            surface=self.surface,
-            angle=random() * self.fullCircle
+            surface=self.surface
         )
 
-    def start(self):
-        running = True
+    async def start(self):
 
-        while running:
-            running = self.handle_input()
+        userInput = 0
+
+        while self.run:
+
+            userInput = self.getInput(userInput)
+
+            message = Message(MesType.Input, userInput)
+            print("send: ", message.serialize())
+            self.client.sendMessage(message.serialize())
+            userInput &= ~InputStatus.a_changed
+            userInput &= ~InputStatus.d_changed
+
+            await asyncio.sleep(0.001)
+
             self.move()
             self.calc()
             self.draw()
@@ -45,27 +67,47 @@ class Game:
 
         pygame.quit()
 
-    def handle_input(self):
+    def getInput(self, userInput):
 
         pKeys = pygame.key.get_pressed()
 
         changed = False
 
         if pKeys[pygame.K_a] == 1:
-            self.mainWorm.angle -= settings.angleDelta
+
+            if userInput & InputStatus.a != InputStatus.a:
+                userInput |= InputStatus.a_changed
+            userInput |= InputStatus.a
+
+            self.mainWorm.angle -= settings.worm['turnAngle']
             changed = True
+        elif userInput & InputStatus.a == InputStatus.a:
+            userInput |= InputStatus.a_changed
+            userInput &= ~InputStatus.a
+
         if pKeys[pygame.K_d] == 1:
-            self.mainWorm.angle += settings.angleDelta
+
+            if userInput & InputStatus.d != InputStatus.d:
+                userInput |= InputStatus.d_changed
+
+            userInput |= InputStatus.d
+
+            self.mainWorm.angle += settings.worm['turnAngle']
             changed = True
+        elif userInput & InputStatus.d == InputStatus.d:
+            userInput |= InputStatus.d_changed
+            userInput &= ~InputStatus.d
 
         if changed:
             self.mainWorm.angle %= self.fullCircle
 
         try:
-            qEvent = next(event for event in pygame.event.get() if event.type == pygame.QUIT)
-            return False
+            next(event for event in pygame.event.get() if event.type == pygame.QUIT)
+            self.run = False
         except StopIteration:
-            return True
+            pass
+
+        return userInput
 
     def calc(self):
 

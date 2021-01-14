@@ -2,16 +2,18 @@ import json
 
 from enum import Enum
 
-class Command(str, Enum):
-    HelloServer = "Hs",
-    HelloClient = "Hc",
 
+class MesType(str, Enum):
+    HelloServer = "HelloServer",
+    HelloClient = "HelloClient",
+    Input = "Input"
+    Position = "Pos"
 
 
 class Message:
-    def __init__(self, name, command: Command, mes):
-        self.name = name
-        self.command = command
+
+    def __init__(self, type: MesType, mes):
+        self.type = type
         self.mes = mes
 
     def serialize(self):

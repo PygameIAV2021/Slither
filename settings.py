@@ -11,7 +11,7 @@ worm = {
     'speed': 2,
     'radius': 10,
     'length': 10,
-    'turnAngle': 0.01
+    'turnAngle': 0.05
 }
 
 food = {

@@ -1,10 +1,11 @@
 import asyncio
-from Message import Message, Command
+from Message import Message, MesType
 
 from autobahn.asyncio.websocket import WebSocketServerProtocol, WebSocketServerFactory
 
 
 class MyServerProtocol(WebSocketServerProtocol):
+    myClients = []
 
     def onConnect(self, request):
         print("Client connecting: {0}".format(request.peer))
@@ -15,19 +16,25 @@ class MyServerProtocol(WebSocketServerProtocol):
     def onMessage(self, payload, isBinary):
         if isBinary:
             return
+
+        # todo: reciev message, handle message, send position of anything
+
         message = Message.deserialize(payload.decode('utf8'))
 
-        print(f"Text message received: {message.command}")
+        print(f"message received: command:{message.type}, mes: '{message.mes}', input: {message.userInput}")
 
-        response = None
+        answer = None
 
-        if message.command == Command.HelloServer:
-            print(f"new client '{message.name}'")
-            response = Message("server", Command.HelloClient, 'blablabla')
+        if message.type == MesType.HelloServer:
+            if self.peer.__str__() not in self.myClients:
+                self.myClients.append(self.peer.__str__())
+            answer = Message(MesType.HelloClient, 'Guten Tag Client', )
 
-        if type(message) is Message:
-            self.sendMessage(response.serialize(), False)
+        elif message.type == MesType.Input:
+            print(f"get input from client: {message.mes}")
 
+        if type(answer) is Message:
+            self.sendMessage(answer.serialize(), False)
 
     def onClose(self, wasClean, code, reason):
         print("WebSocket connection closed: {0}".format(reason))
