@@ -88,7 +88,8 @@ class Client:
             self.__loop.close()
 
 
-client = Client('Dustin', 'localhost', 9000)
+#client = Client('Dustin', '192.168.178.9', 9000)
+client = Client('Dustin', '127.0.0.1', 9000)
 client.start()
 
 print('blub')
