@@ -1,6 +1,7 @@
 import asyncio
 import queue
 from game import Game
+from worm import Worm
 
 from Message import Message, MesType
 
@@ -10,6 +11,9 @@ mesToSend = queue.Queue()
 
 
 class MyClientProtocol(WebSocketClientProtocol):
+    updatedFromServer = False
+    movedByServer = False
+    game = None
 
     def onConnect(self, response):
         print("connected to sever: {0}".format(response.peer))
@@ -17,20 +21,45 @@ class MyClientProtocol(WebSocketClientProtocol):
     async def onOpen(self):
         print("WebSocket connection open.")
 
-        game = Game(self)
-        await game.start()
-
-        message = Message(MesType.HelloServer, 'Guten Tag Server')
-        print("send: ", message.serialize())
-        self.sendMessage(message.serialize())
-
+        self.game = Game(self)
+        await self.game.start_multiplayer()
 
     def onMessage(self, payload, isBinary):
         if not isBinary:
             print("Message received: {0}".format(payload.decode('utf8')))
 
+
+        mes = Message.deserialize(payload)  # type: Message
+
+        if mes.type == MesType.HelloClient:
+            self.game.mainWorm = Worm(
+                name="ich",
+                coord=mes.mes['head'],
+                color=mes.mes['color'],
+                surface=self.game.surface
+            )
+            print(mes.mes)
+        elif mes.type == MesType.Position:
+            print(f"update position: {mes.mes}")
+            if mes.mes['head'] != -1:
+                self.game.mainWorm.body[0].coord = mes.mes['head']
+                self.movedByServer = True
+            self.game.mainWorm.angle = mes.mes['angle']
+            self.game.mainWorm.color = mes.mes['color']
+            self.game.mainWorm.speed = mes.mes['speed']
+            self.updatedFromServer = True
+
+
+        getMessage = True
+
     def onClose(self, wasClean, code, reason):
         print("WebSocket connection closed: {0}".format(reason))
+
+    def sendMess(self, message: Message):
+        self.sendMessage(payload=message.serialize(), isBinary=True)
+
+    def startGame(self):
+        pass
 
 
 class Client:

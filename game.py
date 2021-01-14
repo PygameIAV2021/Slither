@@ -22,6 +22,19 @@ class Game:
     fullCircle = pi * 2
 
     def __init__(self, client):
+
+        self.client = client
+        self.mainWorm = None
+
+        if "isSinglePlayer" == "nein":
+            self.mainWorm = Worm(
+                name="player1",
+                coord=self.getRandomCoord(),
+                color=(0, 0, 255),
+                surface=self.surface
+            )
+
+    def iniPygame(self):
         pygame.init()
         pygame.font.init()
         pygame.display.set_caption('slither')
@@ -29,21 +42,50 @@ class Game:
         self.font = pygame.font.SysFont('default', 20)
         self.clock = pygame.time.Clock()
         self.surface = pygame.display.set_mode(settings.screen_resolution, 0, 32)
-        self.client = client
         self.run = True
 
-        self.mainWorm = Worm(
-            name="player1",
-            coord=[
-                randint(settings.spawnDistanceToBorder, settings.screen_resolution[0] - settings.spawnDistanceToBorder),
-                randint(settings.spawnDistanceToBorder, settings.screen_resolution[1] - settings.spawnDistanceToBorder)
-            ],
-            color=(0, 0, 255),
-            surface=self.surface
-        )
 
-    async def start(self):
+    async def start_multiplayer(self):
+        '''start pygame (client side of the multiplayer)'''
 
+        self.iniPygame()
+        message = Message(MesType.HelloServer, 'Guten Tag Server')
+        print("send: ", message.serialize())
+
+        self.client.sendMess(message)
+
+        while self.mainWorm == None:
+            await asyncio.sleep(0.1)
+
+        userInput = 0
+        while self.run:
+
+            userInput = self.getInput(userInput)
+
+            message = Message(MesType.Input, userInput)
+            print("send: ", message.serialize())
+            self.client.sendMess(message)
+            userInput &= ~InputStatus.a_changed
+            userInput &= ~InputStatus.d_changed
+
+            while not self.client.updatedFromServer:
+                await asyncio.sleep(0.0001)
+
+            self.client.updatedFromServer = False
+            if not self.client.movedByServer:
+                self.move()
+                self.client.movedByServer = False
+            #self.calc()
+            self.draw()
+
+            # max fps
+            self.clock.tick(settings.fps)
+
+        pygame.quit()
+
+    def start_singleplayer(self):
+
+        self.iniPygame()
         userInput = 0
 
         while self.run:
@@ -56,7 +98,6 @@ class Game:
             userInput &= ~InputStatus.a_changed
             userInput &= ~InputStatus.d_changed
 
-            await asyncio.sleep(0.001)
 
             self.move()
             self.calc()
@@ -144,3 +185,9 @@ class Game:
                 f.foodHolder.remove(food)
                 del food
                 break
+
+    def getRandomCoord(self):
+        return [
+            randint(settings.spawnDistanceToBorder, settings.screen_resolution[0] - settings.spawnDistanceToBorder),
+            randint(settings.spawnDistanceToBorder, settings.screen_resolution[1] - settings.spawnDistanceToBorder)
+        ]

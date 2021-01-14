@@ -3,7 +3,7 @@ from game import Game
 
 
 def play():
-    game = Game()
+    game = Game('s')
     game.start()
 
 

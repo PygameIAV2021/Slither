@@ -1,4 +1,4 @@
-import json
+import cbor
 
 from enum import Enum
 
@@ -17,8 +17,9 @@ class Message:
         self.mes = mes
 
     def serialize(self):
-        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=2).encode('utf8')
+        return cbor.dumps({'type': self.type, 'mes': self.mes})
 
     @staticmethod
-    def deserialize(string: str):
-        return json.loads(string, object_hook=lambda d: Message(**d))
+    def deserialize(data):
+        d = cbor.loads(data)
+        return Message(d['type'], d['mes'])

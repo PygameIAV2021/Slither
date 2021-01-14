@@ -14,6 +14,7 @@ from settings import screen_resolution
 
 fullCircle = math.pi * 2
 
+
 class Worm:
 
     def __init__(self, name, coord, surface, color, length=defaultWorm['length']):
@@ -26,10 +27,10 @@ class Worm:
         self.color = color
         self.surface = surface
         self.radius = defaultWorm['radius']
-        self.halfScreen = (screen_resolution[0]/2, screen_resolution[1]/2)
+        self.halfScreen = (screen_resolution[0] / 2, screen_resolution[1] / 2)
 
         head = Circle(coord, self.radius, self.color, self.surface, self.angle, self.speed)
-        head.color = (255, 0, 0) # head color
+        head.color = (255, 0, 0)  # head color
         self.body.append(head)
 
         for i in range(1, length):
@@ -40,9 +41,9 @@ class Worm:
         self.body[0].coord[1] += (math.sin(self.angle) * self.speed)
         self.body[0].handleOutOfScreen()
 
-        for i in range(len(self.body)-1, 0, -1):
+        for i in range(len(self.body) - 1, 0, -1):
 
-            if self.body[i].getDistanceCenter(self.body[i-1]) <= self.distance:
+            if self.body[i].getDistanceCenter(self.body[i - 1]) <= self.distance:
                 continue
                 # only move if the distance between the two circles is more then self.distance
 
@@ -91,3 +92,16 @@ class Worm:
     def updateSpeed(self, speed):
         for circle in self.body:
             circle.speed = speed
+
+    def getData(self, all=False):
+
+        data = {
+            'head': -1,
+            'color': self.color,
+            'angle': self.angle,
+            'speed': self.speed
+        }
+
+        if all:
+            data['head'] = self.body[0].coord
+        return data
