@@ -99,9 +99,17 @@ class Worm:
             'head': -1,
             'color': self.color,
             'angle': self.angle,
-            'speed': self.speed
+            'speed': self.speed,
+            'name': self.name
         }
 
         if all:
             data['head'] = self.body[0].coord
         return data
+
+    def updateByData(self, data):
+        if data['head'] != -1:
+            self.body[0].coord = data['head']
+        self.angle = data['angle']
+        self.color = data['color']
+        self.speed = data['speed']

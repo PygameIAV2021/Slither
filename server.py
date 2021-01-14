@@ -34,6 +34,7 @@ class MyServerProtocol(WebSocketServerProtocol):
 
         answer = None
         index = None
+        worm = None
         playerName = self.getClientName()
 
         if message.type == MesType.HelloServer:
@@ -61,7 +62,6 @@ class MyServerProtocol(WebSocketServerProtocol):
             # 4. send data
 
 
-
             print(f"get input from client: {message.mes}")
             worm = next(w for w in self.worms if w.name == playerName) # type: Worm
             index = self.worms.index(worm)
@@ -74,6 +74,10 @@ class MyServerProtocol(WebSocketServerProtocol):
         if type(answer) is Message:
             while message.type == MesType.Input and not self.isInputFromEachClient():
                 time.sleep(0.0001)
+            else:
+                if message.type == MesType.Input:
+                    answer = Message(MesType.Position, self.wormsData(playerName))
+
             self.sendMess(answer)
         for client, value in enumerate(self.inputReceivedFrom):
             if value == 1:
@@ -84,6 +88,18 @@ class MyServerProtocol(WebSocketServerProtocol):
             if value == 1:
                 return False
         return True
+
+    def wormsData(self, playerName):
+        worms_data = []
+        for worm in self.worms: # type: Worm
+            if worm.name != playerName:
+                worms_data.append(worm.getData(all=True))
+            else:
+                yourWorm = worm.getData()
+                yourWorm['name'] = 'you'
+                worms_data.append(yourWorm)
+
+        return worms_data
 
     def sendMess(self, mess: Message):
         print(f"send message: {mess.type} {mess.mes}")

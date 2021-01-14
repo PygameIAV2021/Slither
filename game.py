@@ -25,6 +25,7 @@ class Game:
 
         self.client = client
         self.mainWorm = None
+        self.otherWorms = []
 
         if "isSinglePlayer" == "nein":
             self.mainWorm = Worm(
@@ -171,6 +172,9 @@ class Game:
 
         for food in f.foodHolder:
             food.draw()
+
+        for otherWorms in self.otherWorms:
+            otherWorms.draw()
 
         self.mainWorm.draw()
 

@@ -41,13 +41,14 @@ class MyClientProtocol(WebSocketClientProtocol):
             print(mes.mes)
         elif mes.type == MesType.Position:
             print(f"update position: {mes.mes}")
-            if mes.mes['head'] != -1:
-                self.game.mainWorm.body[0].coord = mes.mes['head']
-                self.movedByServer = True
-            self.game.mainWorm.angle = mes.mes['angle']
-            self.game.mainWorm.color = mes.mes['color']
-            self.game.mainWorm.speed = mes.mes['speed']
-            self.updatedFromServer = True
+            for worm in mes.mes:
+                if worm['name'] != 'you':
+                    self.handleOtherWorm(worm)
+                else:
+                    self.game.mainWorm.updateByData(worm)
+                    if worm['head'] != -1:
+                        self.movedByServer = True
+                    self.updatedFromServer = True
 
 
         getMessage = True
@@ -61,6 +62,18 @@ class MyClientProtocol(WebSocketClientProtocol):
     def startGame(self):
         pass
 
+    def handleOtherWorm(self, otherWormData):
+        worm = next((worm for worm in self.game.otherWorms if worm.name == otherWormData['name']), False)
+        if worm:
+            worm.updateByData(otherWormData)
+        else:
+            newWorm = Worm(
+                name=otherWormData['name'],
+                coord=otherWormData['head'],
+                color=otherWormData['color'],
+                surface=self.game.surface
+            )
+            self.game.otherWorms.append(newWorm)
 
 class Client:
 
