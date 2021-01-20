@@ -2,6 +2,7 @@ import asyncio
 import queue
 from game import Game
 from worm import Worm
+import settings
 
 from Message import Message, MesType
 
@@ -25,28 +26,28 @@ class MyClientProtocol(WebSocketClientProtocol):
         await self.game.start_multiplayer()
 
     def onMessage(self, payload, isBinary):
-        if not isBinary:
-            print("Message received: {0}".format(payload.decode('utf8')))
-
-
         mes = Message.deserialize(payload)  # type: Message
 
+        if settings.debug:
+            print(f"Message received: {mes.mes}")
+
         if mes.type == MesType.HelloClient:
+
             self.game.mainWorm = Worm(
                 name="ich",
-                coord=mes.mes['head'],
-                color=mes.mes['color'],
+                coord=mes.mes[Worm.d_head],
+                color=mes.mes[Worm.d_color],
                 surface=self.game.surface
             )
-            print(mes.mes)
         elif mes.type == MesType.Position:
-            print(f"update position: {mes.mes}")
+            if settings.debug:
+                print(f"update position: {mes.mes}")
             for worm in mes.mes:
-                if worm['name'] != 'you':
+                if worm[Worm.d_name] != 'you':
                     self.handleOtherWorm(worm)
                 else:
                     self.game.mainWorm.updateByData(worm)
-                    if worm['head'] != -1:
+                    if worm[Worm.d_head] != -1:
                         self.movedByServer = True
                     self.updatedFromServer = True
 
@@ -63,14 +64,14 @@ class MyClientProtocol(WebSocketClientProtocol):
         pass
 
     def handleOtherWorm(self, otherWormData):
-        worm = next((worm for worm in self.game.otherWorms if worm.name == otherWormData['name']), False)
+        worm = next((worm for worm in self.game.otherWorms if worm.name == otherWormData[Worm.d_name]), False)
         if worm:
             worm.updateByData(otherWormData)
         else:
             newWorm = Worm(
-                name=otherWormData['name'],
-                coord=otherWormData['head'],
-                color= (0, 255,0),#otherWormData['color'],
+                name=otherWormData[Worm.d_name],
+                coord=otherWormData[Worm.d_head],
+                color=otherWormData[Worm.d_color],
                 surface=self.game.surface
             )
             self.game.otherWorms.append(newWorm)

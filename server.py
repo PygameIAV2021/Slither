@@ -30,7 +30,8 @@ class MyServerProtocol(WebSocketServerProtocol):
 
         message = Message.deserialize(payload)
 
-        print(f"message received: command:{message.type}, mes: '{message.mes}'")
+        if settings.debug:
+            print(f"message received: command:{message.type}, mes: '{message.mes}'")
 
         answer = None
         index = None
@@ -61,8 +62,8 @@ class MyServerProtocol(WebSocketServerProtocol):
             #               i don't have to trasmit a lot of data and the client cannot cheat)
             # 4. send data
 
-
-            print(f"get input from client: {message.mes}")
+            if settings.debug:
+                print(f"get input from client: {message.mes}")
             worm = next(w for w in self.worms if w.name == playerName) # type: Worm
             index = self.worms.index(worm)
             self.handleInput(message.mes, worm)
@@ -97,13 +98,14 @@ class MyServerProtocol(WebSocketServerProtocol):
                 worms_data.append(worm.getData(all=True))
             else:
                 yourWorm = worm.getData()
-                yourWorm['name'] = 'you'
+                yourWorm[worm.d_name] = 'you'
                 worms_data.append(yourWorm)
 
         return worms_data
 
     def sendMess(self, mess: Message):
-        print(f"send message: {mess.type} {mess.mes}")
+        if settings.debug:
+            print(f"send message: {mess.type} {mess.mes}")
         self.sendMessage(mess.serialize(), isBinary=True)
 
     def onClose(self, wasClean, code, reason):

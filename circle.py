@@ -53,3 +53,22 @@ class Circle:
                 self.coord[axis] -= screen_resolution[axis]
             elif self.coord[axis] < 0:
                 self.coord[axis] += screen_resolution[axis]
+
+    # indexes for getData and updateByData (better then strings, for the multiplayer):
+    d_radius = 0
+    d_color = 1
+    d_coord = 3
+
+    def getData(self):
+
+        return {
+            self.d_color: self.color,
+            self.d_radius: self.radius,
+            self.d_coord: self.coord,
+        }
+
+    def updateByData(self, data):
+        self.radius = data[self.d_radius]
+        self.diameter = self.radius * 2
+        self.coord = data[self.d_coord]
+        self.color = data[self.d_color]

@@ -36,12 +36,11 @@ class Worm:
         for i in range(1, length):
             self.addBodyPart()
 
-    def move(self, moveOnlyBody=False):
+    def move(self):
 
-        if not moveOnlyBody:
-            self.body[0].coord[0] += (math.cos(self.angle) * self.speed)
-            self.body[0].coord[1] += (math.sin(self.angle) * self.speed)
-            self.body[0].handleOutOfScreen()
+        self.body[0].coord[0] += (math.cos(self.angle) * self.speed)
+        self.body[0].coord[1] += (math.sin(self.angle) * self.speed)
+        self.body[0].handleOutOfScreen()
 
         for i in range(len(self.body) - 1, 0, -1):
 
@@ -95,23 +94,55 @@ class Worm:
         for circle in self.body:
             circle.speed = speed
 
+    d_head = 0
+    d_color = 1
+    d_angle = 2
+    d_speed = 3
+    d_name = 4
+    d_body = 5
+
     def getData(self, all=False):
 
         data = {
-            'head': -1,
-            'color': self.color,
-            'angle': self.angle,
-            'speed': self.speed,
-            'name': self.name
+            self.d_head: -1,
+            self.d_color: self.color,
+            self.d_angle: self.angle,
+            self.d_speed: self.speed,
+            self.d_name: self.name,
+            self.d_body: -1
         }
 
         if all:
-            data['head'] = self.body[0].coord
+            data[self.d_head] = self.body[0].coord
+            data[self.d_body] = []
+            for c in self.body:
+                data[self.d_body].append(c.getData())
+
         return data
 
     def updateByData(self, data):
-        if data['head'] != -1:
-            self.body[0].coord = data['head']
-        self.angle = data['angle']
-        self.color = data['color']
-        self.speed = data['speed']
+        if data[self.d_head] != -1:
+            self.body[0].coord = data[self.d_head]
+        self.angle = data[self.d_angle]
+        self.color = data[self.d_color]
+        self.speed = data[self.d_speed]
+
+        if data[self.d_body] != -1:
+            length = len(data[self.d_body])
+            i = 0
+            for c in self.body:
+                c.updateByData(data[self.d_body][i])
+                length -= 1
+                i += 1
+                if length == 0:
+                    break
+
+            if length > 0:
+                circle = Circle(
+                    coord=data[self.d_body][i][Circle.d_coord],
+                    radius=data[self.d_body][i][Circle.d_radius],
+                    color=data[self.d_body][i][Circle.d_color],
+                    surface=self.surface, angle=self.angle, speed=self.speed)
+                self.body.append(circle)
+                i += 1
+

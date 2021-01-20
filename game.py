@@ -51,7 +51,8 @@ class Game:
 
         self.iniPygame()
         message = Message(MesType.HelloServer, 'Guten Tag Server')
-        print("send: ", message.serialize())
+        if settings.debug:
+            print("send: ", message.serialize())
 
         self.client.sendMess(message)
 
@@ -64,7 +65,8 @@ class Game:
             userInput = self.getInput(userInput)
 
             message = Message(MesType.Input, userInput)
-            print("send: ", message.serialize())
+            if settings.debug:
+                print("send: ", message.serialize())
             self.client.sendMess(message)
             userInput &= ~InputStatus.a_changed
             userInput &= ~InputStatus.d_changed
@@ -96,7 +98,6 @@ class Game:
             userInput = self.getInput(userInput)
 
             message = Message(MesType.Input, userInput)
-            print("send: ", message.serialize())
             self.client.sendMessage(message.serialize())
             userInput &= ~InputStatus.a_changed
             userInput &= ~InputStatus.d_changed
@@ -165,9 +166,6 @@ class Game:
 
         for food in f.foodHolder:
             food.move()
-
-        for otherWorm in self.otherWorms:  # type: Worm
-            otherWorm.move(moveOnlyBody=True)
 
         self.mainWorm.move()
 
