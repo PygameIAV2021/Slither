@@ -70,7 +70,7 @@ class MyClientProtocol(WebSocketClientProtocol):
             newWorm = Worm(
                 name=otherWormData['name'],
                 coord=otherWormData['head'],
-                color=otherWormData['color'],
+                color= (0, 255,0),#otherWormData['color'],
                 surface=self.game.surface
             )
             self.game.otherWorms.append(newWorm)

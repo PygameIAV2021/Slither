@@ -6,7 +6,6 @@ import settings
 
 from Message import Message, MesType
 import asyncio
-import queue
 
 
 # user input status bits
@@ -48,7 +47,7 @@ class Game:
 
 
     async def start_multiplayer(self):
-        '''start pygame (client side of the multiplayer)'''
+        """start pygame (client side of the multiplayer)"""
 
         self.iniPygame()
         message = Message(MesType.HelloServer, 'Guten Tag Server')
@@ -74,15 +73,17 @@ class Game:
                 await asyncio.sleep(0.0001)
 
             self.client.updatedFromServer = False
-            if not self.client.movedByServer:
-                self.move()
-                self.client.movedByServer = False
+            #if not self.client.movedByServer:
+            self.move()
+            self.client.movedByServer = False
+
             #self.calc()
             self.draw()
 
             # max fps
             self.clock.tick(settings.fps)
 
+        import pygame
         pygame.quit()
 
     def start_singleplayer(self):
@@ -161,9 +162,14 @@ class Game:
         self.checkCollisionWithFood()
 
     def move(self):
-        self.mainWorm.move()
+
         for food in f.foodHolder:
             food.move()
+
+        for otherWorm in self.otherWorms:  # type: Worm
+            otherWorm.move(moveOnlyBody=True)
+
+        self.mainWorm.move()
 
     def draw(self):
         import pygame

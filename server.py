@@ -66,6 +66,7 @@ class MyServerProtocol(WebSocketServerProtocol):
             worm = next(w for w in self.worms if w.name == playerName) # type: Worm
             index = self.worms.index(worm)
             self.handleInput(message.mes, worm)
+            worm.move()
             answer = Message(MesType.Position, worm.getData())
 
         if index is not None:
@@ -76,7 +77,7 @@ class MyServerProtocol(WebSocketServerProtocol):
                 time.sleep(0.0001)
             else:
                 if message.type == MesType.Input:
-                    answer = Message(MesType.Position, self.wormsData(playerName))
+                    answer = Message(MesType.Position, self.generatePositionDataForPlayer(playerName))
 
             self.sendMess(answer)
         for client, value in enumerate(self.inputReceivedFrom):
@@ -89,7 +90,7 @@ class MyServerProtocol(WebSocketServerProtocol):
                 return False
         return True
 
-    def wormsData(self, playerName):
+    def generatePositionDataForPlayer(self, playerName):
         worms_data = []
         for worm in self.worms: # type: Worm
             if worm.name != playerName:
@@ -106,10 +107,13 @@ class MyServerProtocol(WebSocketServerProtocol):
         self.sendMessage(mess.serialize(), isBinary=True)
 
     def onClose(self, wasClean, code, reason):
-        #self.inputReceivedFrom will crash after dissconect
+
         playerName = self.getClientName()
         if playerName in self.clients:
             self.clients.remove(playerName)
+            worm = next(w for w in self.worms if w.name == playerName)
+            playerIndex = self.worms.index(worm)
+            del self.inputReceivedFrom[playerIndex]
             self.worms = [w for w in self.worms if w.name != playerName]
         print("WebSocket connection closed {0}: {1}".format(self.getClientName(), reason))
 

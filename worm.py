@@ -36,10 +36,12 @@ class Worm:
         for i in range(1, length):
             self.addBodyPart()
 
-    def move(self):
-        self.body[0].coord[0] += (math.cos(self.angle) * self.speed)
-        self.body[0].coord[1] += (math.sin(self.angle) * self.speed)
-        self.body[0].handleOutOfScreen()
+    def move(self, moveOnlyBody=False):
+
+        if not moveOnlyBody:
+            self.body[0].coord[0] += (math.cos(self.angle) * self.speed)
+            self.body[0].coord[1] += (math.sin(self.angle) * self.speed)
+            self.body[0].handleOutOfScreen()
 
         for i in range(len(self.body) - 1, 0, -1):
 
