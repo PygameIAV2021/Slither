@@ -90,31 +90,6 @@ class Game:
         self.client.sendClose()
         raise KeyboardInterrupt
 
-    def start_singleplayer(self):
-
-        self.iniPygame()
-        userInput = 0
-
-        while self.run:
-
-            userInput = self.getInput(userInput)
-
-            message = Message(MesType.Input, userInput)
-            self.client.sendMessage(message.serialize())
-            userInput &= ~InputStatus.a_changed
-            userInput &= ~InputStatus.d_changed
-
-
-            self.move()
-            self.calc()
-            self.draw()
-
-            # max fps
-            self.clock.tick(settings.fps)
-
-        import  pygame
-        pygame.quit()
-
     def getInput(self, userInput):
 
         import pygame
