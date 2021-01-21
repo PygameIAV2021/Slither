@@ -4,10 +4,10 @@ from enum import Enum
 
 
 class MesType(str, Enum):
-    HelloServer = "HelloServer",
-    HelloClient = "HelloClient",
-    Input = "Input"
-    Position = "Pos"
+    HelloServer = 0
+    HelloClient = 1
+    Input = 2
+    Position = 3
 
 
 class Message:
@@ -17,9 +17,9 @@ class Message:
         self.mes = mes
 
     def serialize(self):
-        return cbor.dumps({'type': self.type, 'mes': self.mes})
+        return cbor.dumps({'t': self.type, 'm': self.mes})
 
     @staticmethod
     def deserialize(data):
         d = cbor.loads(data)
-        return Message(d['type'], d['mes'])
+        return Message(d['t'], d['m'])
