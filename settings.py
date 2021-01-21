@@ -18,6 +18,20 @@ food = {
     'speed': 1
 }
 
+multiplayer_colors = [
+    (0, 0, 255),
+    (0, 255, 0),
+    (0, 255, 255),
+    (255, 0, 255),
+    (255, 255, 0),
+    (50, 100, 50),
+    (255, 0, 100),
+    (180, 200, 0),
+    (120, 30, 120)
+]
+
+multiplayer_max_players = len(multiplayer_colors)
+
 if debug:
     worm['speed'] = 2
     worm['turnAngle'] = 0.3

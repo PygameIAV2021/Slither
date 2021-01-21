@@ -2,10 +2,20 @@ import asyncio
 from Message import Message, MesType
 from worm import Worm
 from game import Game, InputStatus
+from random import randint
 import settings as settings
 import time
 
 from autobahn.asyncio.websocket import WebSocketServerProtocol, WebSocketServerFactory
+
+
+def getRandomColor():
+    c = randint(0, len(settings.multiplayer_colors) - 1)
+    return settings.multiplayer_colors.pop(c)
+
+
+def addRandomColor(c):
+    settings.multiplayer_colors.append(c)
 
 
 class MyServerProtocol(WebSocketServerProtocol):
@@ -44,17 +54,17 @@ class MyServerProtocol(WebSocketServerProtocol):
                 newWorm = Worm(
                     name=playerName,
                     coord=self.game.getRandomCoord(),
-                    color=(0, 0, 255),
+                    color=getRandomColor(),
                     surface=None
                 )
                 self.worms.append(newWorm)
                 index = self.worms.index(newWorm)
                 self.inputReceivedFrom.append(0)
-                print("create new client " + playerName)
+                print("create new worm for " + playerName)
                 answer = Message(MesType.HelloClient, newWorm.getData(all=True))
 
         elif message.type == MesType.Input:
-            #todo:
+            # todo:
             # 1. get the worm
             # 2. handle input, change worm-angle
             # 2. generate message to send
@@ -64,7 +74,7 @@ class MyServerProtocol(WebSocketServerProtocol):
 
             if settings.debug:
                 print(f"get input from client: {message.mes}")
-            worm = next(w for w in self.worms if w.name == playerName) # type: Worm
+            worm = next(w for w in self.worms if w.name == playerName)  # type: Worm
             index = self.worms.index(worm)
             self.handleInput(message.mes, worm)
             worm.move()
@@ -93,7 +103,7 @@ class MyServerProtocol(WebSocketServerProtocol):
 
     def generatePositionDataForPlayer(self, playerName):
         worms_data = []
-        for worm in self.worms: # type: Worm
+        for worm in self.worms:  # type: Worm
             if worm.name != playerName:
                 worms_data.append(worm.getData(all=True))
             else:
@@ -114,6 +124,7 @@ class MyServerProtocol(WebSocketServerProtocol):
         if playerName in self.clients:
             self.clients.remove(playerName)
             worm = next(w for w in self.worms if w.name == playerName)
+            addRandomColor(worm.color)
             playerIndex = self.worms.index(worm)
             del self.inputReceivedFrom[playerIndex]
             self.worms = [w for w in self.worms if w.name != playerName]
@@ -127,6 +138,7 @@ class MyServerProtocol(WebSocketServerProtocol):
             worm.angle -= settings.worm['turnAngle']
         if input & InputStatus.d == InputStatus.d:
             worm.angle += settings.worm['turnAngle']
+
 
 if __name__ == '__main__':
 
