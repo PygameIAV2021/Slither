@@ -66,7 +66,7 @@ class Game:
 
             message = Message(MesType.Input, userInput)
             if settings.debug:
-                print("send: ", message.serialize())
+                print("send: ", message.mes)
             self.client.sendMess(message)
             userInput &= ~InputStatus.a_changed
             userInput &= ~InputStatus.d_changed
@@ -133,13 +133,6 @@ class Game:
 
         return userInput
 
-    def calc(self):
-
-        if len(f.foodHolder) <= settings.maxNumberOfFood and random() > 0.97:
-            f.addFood(self.surface)
-
-        self.checkCollisionWithFood()
-
     def move(self):
 
         for food in f.foodHolder:
@@ -164,19 +157,3 @@ class Game:
         self.mainWorm.draw()
 
         pygame.display.update()
-
-    def checkCollisionWithFood(self):
-        head = self.mainWorm.getHead()
-
-        for food in f.foodHolder:
-            if food.checkCollision(head):
-                self.mainWorm.eat(food)
-                f.foodHolder.remove(food)
-                del food
-                break
-
-    def getRandomCoord(self):
-        return [
-            randint(settings.spawnDistanceToBorder, settings.screen_resolution[0] - settings.spawnDistanceToBorder),
-            randint(settings.spawnDistanceToBorder, settings.screen_resolution[1] - settings.spawnDistanceToBorder)
-        ]

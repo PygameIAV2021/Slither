@@ -2,9 +2,14 @@ import asyncio
 from Message import Message, MesType
 from worm import Worm
 from game import Game, InputStatus
-from random import randint
+from food import foodHolder, addFood, Food
+from random import randint, random
 import settings as settings
 import time
+
+
+#todo: ich prüfe wie lange der letzte request her ist. dann bewege ich alle anhand der letzten Zeit und versende alles
+#todo: broadcast system einbauen
 
 from autobahn.asyncio.websocket import WebSocketServerProtocol, WebSocketServerFactory
 
@@ -18,13 +23,27 @@ def addRandomColor(c):
     settings.multiplayer_colors.append(c)
 
 
+def getRandomCoord():
+    return [
+        randint(settings.spawnDistanceToBorder, settings.screen_resolution[0] - settings.spawnDistanceToBorder),
+        randint(settings.spawnDistanceToBorder, settings.screen_resolution[1] - settings.spawnDistanceToBorder)
+    ]
+
+
+class ConnectedClient:
+    def __init__(self, name):
+        self.name = name
+        self.worm = Worm(
+            name=self.name,
+            coord=getRandomCoord(),
+            color=getRandomColor(),
+            surface=None
+        )
+
 class MyServerProtocol(WebSocketServerProtocol):
     clients = []
     worms = []
     game = Game('foo')
-    counter = 0
-    receivedInputs = 0
-    inputReceivedFrom = []
 
     def onConnect(self, request):
         print("Client connecting: {0}".format(request.peer))
@@ -38,80 +57,52 @@ class MyServerProtocol(WebSocketServerProtocol):
         if not isBinary:
             return
 
-        # todo: reciev message, handle message, send position of anything
-
         message = Message.deserialize(payload)
 
         if settings.debug:
             print(f"message received: command:{message.type}, mes: '{message.mes}'")
 
         answer = None
-        index = None
-        worm = None
         playerName = self.getClientName()
+        client = None
 
         if message.type == MesType.HelloServer:
             if playerName not in self.clients:
-                self.clients.append(playerName)
-                newWorm = Worm(
-                    name=playerName,
-                    coord=self.game.getRandomCoord(),
-                    color=getRandomColor(),
-                    surface=None
-                )
-                self.worms.append(newWorm)
-                index = self.worms.index(newWorm)
-                self.inputReceivedFrom.append(0)
+                client = ConnectedClient(playerName)
+                self.clients.append(client)
+
                 print("create new worm for " + playerName)
-                answer = Message(MesType.HelloClient, newWorm.getData(all=True))
+                answer = Message(MesType.HelloClient, client.worm.getData(all=True))
 
         elif message.type == MesType.Input:
-            # todo:
-            # 1. get the worm
-            # 2. handle input, change worm-angle
-            # 2. generate message to send
-            # 3. move worm (so the client and the server moves the worm.
-            #               i don't have to trasmit a lot of data and the client cannot cheat)
-            # 4. send data
 
             if settings.debug:
                 print(f"get input from client: {message.mes}")
-            worm = next(w for w in self.worms if w.name == playerName)  # type: Worm
-            index = self.worms.index(worm)
-            self.handleInput(message.mes, worm)
-            worm.move()
-            answer = Message(MesType.Position, worm.getData())
+            client = self.getClient(playerName)
 
-        if index is not None:
-            self.inputReceivedFrom[index] = 1
+            self.handleInput(message.mes, client.worm)
+            client.worm.move()
+            answer = Message(MesType.Position, client.worm.getData())
+
+        else:
+            print("was ist das für ne Nachricht???")
 
         if type(answer) is Message:
-            while message.type == MesType.Input and not self.isInputFromEachClient():
-                time.sleep(0.0001)
-            else:
-                if message.type == MesType.Input:
-                    answer = Message(MesType.Position, self.generatePositionDataForPlayer(playerName))
-
+            if message.type == MesType.Input:
+                # self.calc()
+                answer = Message(MesType.Position, self.generatePositionDataForPlayer(client))
             self.sendMess(answer)
-        for client, value in enumerate(self.inputReceivedFrom):
-            if value == 1:
-                self.inputReceivedFrom[client] = 0
 
-    def isInputFromEachClient(self):
-        for value in enumerate(self.inputReceivedFrom):
-            if value == 1:
-                return False
-        return True
 
-    def generatePositionDataForPlayer(self, playerName):
+    def generatePositionDataForPlayer(self, connectedClient: ConnectedClient):
         worms_data = []
-        for worm in self.worms:  # type: Worm
-            if worm.name != playerName:
-                worms_data.append(worm.getData(all=True))
-            else:
-                yourWorm = worm.getData()
-                yourWorm[worm.d_name] = 'you'
-                worms_data.append(yourWorm)
+        for client in self.clients:  # type: ConnectedClient
+            if client.name != connectedClient.name:
+                worms_data.append(client.worm.getData(all=True))
+
+        yourWorm = connectedClient.worm.getData()
+        yourWorm[Worm.d_name] = 'you'
+        worms_data.append(yourWorm)
 
         return worms_data
 
@@ -121,19 +112,16 @@ class MyServerProtocol(WebSocketServerProtocol):
         self.sendMessage(mess.serialize(), isBinary=True)
 
     def onClose(self, wasClean, code, reason):
-
-        playerName = self.getClientName()
-        if playerName in self.clients:
-            self.clients.remove(playerName)
-            worm = next(w for w in self.worms if w.name == playerName)
-            addRandomColor(worm.color)
-            playerIndex = self.worms.index(worm)
-            del self.inputReceivedFrom[playerIndex]
-            self.worms.remove(worm)
-        print("WebSocket connection closed {0}: {1}".format(self.getClientName(), reason))
+        client = self.getClient(self.getClientName())
+        self.clients.remove(client)
+        addRandomColor(client.worm.color)
+        print("WebSocket connection closed {0}: code {1}".format(self.getClientName(), code))
 
     def getClientName(self):
         return self.peer.__str__()
+
+    def getClient(self, name):
+        return next(c for c in self.clients if c.name == name)  # type: ConnectedClient
 
     def handleInput(self, input, worm):
         if input & InputStatus.a == InputStatus.a:
@@ -141,6 +129,23 @@ class MyServerProtocol(WebSocketServerProtocol):
         if input & InputStatus.d == InputStatus.d:
             worm.angle += settings.worm['turnAngle']
 
+    def calc(self, worm: Worm):
+        """in progress"""
+        if len(foodHolder) <= settings.maxNumberOfFood and random() > 0.97:
+            addFood(None)
+
+        self.checkCollisionWithFood(worm)
+
+    def checkCollisionWithFood(self, worm: Worm):
+        """in progress"""
+        head = worm.getHead()
+
+        for food in foodHolder:
+            if food.checkCollision(head):
+                self.mainWorm.eat(food)
+                foodHolder.remove(food)
+                del food
+                break
 
 if __name__ == '__main__':
 
