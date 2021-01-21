@@ -87,6 +87,8 @@ class Game:
 
         import pygame
         pygame.quit()
+        self.client.sendClose()
+        raise KeyboardInterrupt
 
     def start_singleplayer(self):
 
@@ -110,6 +112,7 @@ class Game:
             # max fps
             self.clock.tick(settings.fps)
 
+        import  pygame
         pygame.quit()
 
     def getInput(self, userInput):

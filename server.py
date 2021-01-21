@@ -28,6 +28,8 @@ class MyServerProtocol(WebSocketServerProtocol):
 
     def onConnect(self, request):
         print("Client connecting: {0}".format(request.peer))
+        if len(self.clients) >= settings.multiplayer_max_players:
+            self.sendClose(code=settings.ConnectionCodes.serverFull)
 
     def onOpen(self):
         print("WebSocket connection open.")
@@ -127,7 +129,7 @@ class MyServerProtocol(WebSocketServerProtocol):
             addRandomColor(worm.color)
             playerIndex = self.worms.index(worm)
             del self.inputReceivedFrom[playerIndex]
-            self.worms = [w for w in self.worms if w.name != playerName]
+            self.worms.remove(worm)
         print("WebSocket connection closed {0}: {1}".format(self.getClientName(), reason))
 
     def getClientName(self):

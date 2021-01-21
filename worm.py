@@ -28,6 +28,7 @@ class Worm:
         self.surface = surface
         self.radius = defaultWorm['radius']
         self.halfScreen = (screen_resolution[0] / 2, screen_resolution[1] / 2)
+        self.updatedByServer = False
 
         head = Circle(coord, self.radius, self.color, self.surface, self.angle, self.speed)
         head.color = (255, 0, 0)  # head color

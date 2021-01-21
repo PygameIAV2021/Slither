@@ -50,7 +50,7 @@ class MyClientProtocol(WebSocketClientProtocol):
                     if worm[Worm.d_head] != -1:
                         self.movedByServer = True
                     self.updatedFromServer = True
-
+            self.checkIfSomeoneDisconnected()
 
         getMessage = True
 
@@ -68,13 +68,23 @@ class MyClientProtocol(WebSocketClientProtocol):
         if worm:
             worm.updateByData(otherWormData)
         else:
-            newWorm = Worm(
+            worm = Worm(
                 name=otherWormData[Worm.d_name],
                 coord=otherWormData[Worm.d_head],
                 color=otherWormData[Worm.d_color],
                 surface=self.game.surface
             )
-            self.game.otherWorms.append(newWorm)
+            self.game.otherWorms.append(worm)
+        worm.updatedByServer = True
+
+    def checkIfSomeoneDisconnected(self):
+        for w in self.game.otherWorms:  # type: Worm
+            if not w.updatedByServer:
+                print(f"someone disconnected! ({w.name})")
+                self.game.otherWorms.remove(w)
+            else:
+                w.updatedByServer = False
+
 
 class Client:
 
@@ -104,6 +114,11 @@ class Client:
 
 #client = Client('Dustin', '192.168.178.9', 9000)
 client = Client('Dustin', '127.0.0.1', 9000)
-client.start()
-
-print('blub')
+try:
+    client.start()
+except KeyboardInterrupt:
+    import sys, os
+    try:
+        sys.exit(0)
+    except SystemExit:
+        os._exit(0)

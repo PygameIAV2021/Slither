@@ -1,12 +1,12 @@
 debug = False
-#debug = True
+# debug = True
 
 screen_resolution = (1200, 800)
 fps = 70
 maxNumberOfFood = 5
 spawnDistanceToBorder = 200
 
-#startup worm:
+# startup worm:
 worm = {
     'speed': 2,
     'radius': 10,
@@ -31,6 +31,12 @@ multiplayer_colors = [
 ]
 
 multiplayer_max_players = len(multiplayer_colors)
+
+
+class ConnectionCodes:
+    serverFull = 3001,
+    clientClosedByUser = 3002
+
 
 if debug:
     worm['speed'] = 2
