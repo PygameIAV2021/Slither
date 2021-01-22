@@ -8,6 +8,7 @@ class MesType(str, Enum):
     HelloClient = 1
     Input = 2
     Position = 3
+    YouAreDeath = 4
 
 
 class Message:

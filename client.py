@@ -40,6 +40,7 @@ class SlitherClient(WebSocketClientProtocol):
                 color=mes.mes[Worm.d_color],
                 surface=self.game.surface
             )
+
         elif mes.type == MesType.Position:
             if settings.debug:
                 print(f"update position: {mes.mes}")
@@ -50,11 +51,16 @@ class SlitherClient(WebSocketClientProtocol):
             self.updateWorms(wormData)
             self.updateFood(foodData)
 
+        elif mes.type == MesType.YouAreDeath:
+            raise KeyboardInterrupt
+        else:
+            print(f"unexpected message! '{mes.type}'")
+
         self.updatedByServer = True
-        getMessage = True
 
     def onClose(self, wasClean, code, reason):
-        print("WebSocket connection closed: {0}".format(reason))
+        print(f"WebSocket connection closed: {code}")
+        raise KeyboardInterrupt
 
     def sendMess(self, message: Message):
         self.sendMessage(payload=message.serialize(), isBinary=True)

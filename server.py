@@ -5,6 +5,7 @@ from game import Game, InputStatus
 from food import foodHolder, addFood, Food
 from random import randint, random
 import settings as settings
+from circle import Circle
 import time
 
 # todo: ich prüfe wie lange der letzte request her ist. dann bewege ich alle anhand der letzten Zeit und versende alles
@@ -109,6 +110,9 @@ class SlitherServer(WebSocketServerProtocol):
 
             self.checkCollisionWithFood(client)
 
+        for client in self.clients:
+            self.checkCollisionWithOtherWorm(client)
+
         if len(foodHolder) <= settings.maxNumberOfFood and random() > 0.97:
             addFood(None)
 
@@ -154,15 +158,17 @@ class SlitherServer(WebSocketServerProtocol):
             client.ws.sendMess(answer)
 
     def onClose(self, wasClean, code, reason):
-        client = self.getClient(self.getClientName())
-        self.clients.remove(client)
-        addRandomColor(client.worm.color)
         print("WebSocket connection closed {0}: code {1}".format(self.getClientName(), code))
+        client = self.getClient(self.getClientName())
+        if client:
+            self.clients.remove(client)
+            addRandomColor(client.worm.color)
+
         for c in self.clients:  # type: ConnectedClient
             if not c.updated:
                 return
 
-        print(f"update all! by loxsed client {client.name}")
+        # received input from each client -> calc the move and collision -> send positions
         self.calc()
         self.sendPosToAllClients()
 
@@ -171,7 +177,10 @@ class SlitherServer(WebSocketServerProtocol):
         return self.peer.__str__()
 
     def getClient(self, name):
-        return next(c for c in self.clients if c.name == name)  # type: ConnectedClient
+        try:
+            return next(c for c in self.clients if c.name == name)  # type: ConnectedClient
+        except StopIteration:
+            return False
 
     def handleInput(self, input, worm):
         if input & InputStatus.a == InputStatus.a:
@@ -190,6 +199,31 @@ class SlitherServer(WebSocketServerProtocol):
                 foodHolder.remove(food)
                 del food
                 break
+
+    def checkCollisionWithOtherWorm(self, client: ConnectedClient):
+
+        collision = False
+        for opponentClient in self.clients:  # type: ConnectedClient
+            if opponentClient.name == client.name:
+                continue
+            if collision:
+                break
+            head = False
+
+            for opponentCircle in opponentClient.worm.body:  # type: Circle
+                if head:
+                    head = False
+                    continue
+                collision = client.worm.body[0].checkCollision(opponentCircle)
+                if collision:
+                    addRandomColor(client.worm.color)
+                    self.clients.remove(client)
+                    mess = Message(MesType.YouAreDeath, {"killedBy": opponentClient.name})
+                    client.ws.sendMess(mess)
+                    client.ws.sendClose(code=settings.ConnectionCodes.youGetKilled)
+                    break
+                    #todo: send message like 'du hast verloren'
+
 
 
 if __name__ == '__main__':
@@ -211,3 +245,5 @@ if __name__ == '__main__':
     finally:
         server.close()
         loop.close()
+
+    print(f"server closed")
