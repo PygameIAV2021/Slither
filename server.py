@@ -6,10 +6,7 @@ from food import foodHolder, addFood, Food
 from random import randint, random
 import settings as settings
 from circle import Circle
-import time
 
-# todo: ich prüfe wie lange der letzte request her ist. dann bewege ich alle anhand der letzten Zeit und versende alles
-# todo: broadcast system einbauen
 
 from autobahn.asyncio.websocket import WebSocketServerProtocol, WebSocketServerFactory
 
@@ -154,7 +151,6 @@ class SlitherServer(WebSocketServerProtocol):
         for client in self.clients:
             answer = Message(MesType.Position, self.generatePositionDataForPlayer(client))
 
-            # todo: send broadcast to all clients if the last client has send his data
             client.ws.sendMess(answer)
 
     def onClose(self, wasClean, code, reason):
@@ -222,8 +218,6 @@ class SlitherServer(WebSocketServerProtocol):
                     client.ws.sendMess(mess)
                     client.ws.sendClose(code=settings.ConnectionCodes.youGetKilled)
                     break
-                    #todo: send message like 'du hast verloren'
-
 
 
 if __name__ == '__main__':
