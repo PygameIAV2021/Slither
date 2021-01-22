@@ -2,20 +2,20 @@ debug = False
 #debug = True
 
 screen_resolution = (1200, 800)
-fps = 70
+fps = 30
 maxNumberOfFood = 5
 spawnDistanceToBorder = 200
 
 # startup worm:
 worm = {
-    'speed': 2,
+    'speed': 4,
     'radius': 10,
     'length': 10,
-    'turnAngle': 0.05
+    'turnAngle': 0.1
 }
 
 food = {
-    'speed': 1
+    'speed': 2
 }
 
 multiplayer_colors = [
