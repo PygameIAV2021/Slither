@@ -147,3 +147,5 @@ class Worm:
                 self.body.append(circle)
                 i += 1
 
+        self.updatedByServer = True
+

@@ -7,9 +7,8 @@ from random import randint, random
 import settings as settings
 import time
 
-
-#todo: ich prüfe wie lange der letzte request her ist. dann bewege ich alle anhand der letzten Zeit und versende alles
-#todo: broadcast system einbauen
+# todo: ich prüfe wie lange der letzte request her ist. dann bewege ich alle anhand der letzten Zeit und versende alles
+# todo: broadcast system einbauen
 
 from autobahn.asyncio.websocket import WebSocketServerProtocol, WebSocketServerFactory
 
@@ -31,7 +30,7 @@ def getRandomCoord():
 
 
 class ConnectedClient:
-    def __init__(self, name):
+    def __init__(self, name, websocket):
         self.name = name
         self.worm = Worm(
             name=self.name,
@@ -39,8 +38,12 @@ class ConnectedClient:
             color=getRandomColor(),
             surface=None
         )
+        self.updated = False
+        self.ws = websocket
+        self.updateCompleteWorm = False
 
-class MyServerProtocol(WebSocketServerProtocol):
+
+class SlitherServer(WebSocketServerProtocol):
     clients = []
     worms = []
     game = Game('foo')
@@ -68,54 +71,101 @@ class MyServerProtocol(WebSocketServerProtocol):
 
         if message.type == MesType.HelloServer:
             if playerName not in self.clients:
-                client = ConnectedClient(playerName)
+                client = ConnectedClient(playerName, self)
                 self.clients.append(client)
 
                 print("create new worm for " + playerName)
                 answer = Message(MesType.HelloClient, client.worm.getData(all=True))
+                self.sendMess(answer)
 
         elif message.type == MesType.Input:
 
             if settings.debug:
                 print(f"get input from client: {message.mes}")
-            client = self.getClient(playerName)
+            client = self.getClient(playerName)  # type: ConnectedClient
+            client.updateCompleteWorm = False
 
             self.handleInput(message.mes, client.worm)
-            client.worm.move()
-            answer = Message(MesType.Position, client.worm.getData())
+
+            client.updated = True
+
+            for c in self.clients:  # type: ConnectedClient
+                if not c.updated:
+                    return
+
+            self.calc()
+            self.sendPosToAllClients()
 
         else:
             print("was ist das für ne Nachricht???")
 
-        if type(answer) is Message:
-            if message.type == MesType.Input:
-                # self.calc()
-                answer = Message(MesType.Position, self.generatePositionDataForPlayer(client))
-            self.sendMess(answer)
+    def calc(self):
 
+        for f in foodHolder:  # type: Food
+            f.move()
+
+        for client in self.clients:
+            client.worm.move()
+
+            self.checkCollisionWithFood(client)
+
+        if len(foodHolder) <= settings.maxNumberOfFood and random() > 0.97:
+            addFood(None)
 
     def generatePositionDataForPlayer(self, connectedClient: ConnectedClient):
+
+        data = {
+            'w': self.generateWormPositionData(connectedClient),
+            'f': self.generateFoodPositionData()
+        }
+
+        return data
+
+    def generateWormPositionData(self, connectedClient: ConnectedClient):
         worms_data = []
         for client in self.clients:  # type: ConnectedClient
             if client.name != connectedClient.name:
                 worms_data.append(client.worm.getData(all=True))
 
-        yourWorm = connectedClient.worm.getData()
+        yourWorm = connectedClient.worm.getData(all=connectedClient.updateCompleteWorm)
         yourWorm[Worm.d_name] = 'you'
         worms_data.append(yourWorm)
 
         return worms_data
+
+    def generateFoodPositionData(self):
+
+        return [f.generateData() for f in foodHolder]
 
     def sendMess(self, mess: Message):
         if settings.debug:
             print(f"send message: {mess.type} {mess.mes}")
         self.sendMessage(mess.serialize(), isBinary=True)
 
+    def sendPosToAllClients(self):
+
+        for client in self.clients:
+            client.updated = False
+
+        for client in self.clients:
+            answer = Message(MesType.Position, self.generatePositionDataForPlayer(client))
+
+            # todo: send broadcast to all clients if the last client has send his data
+            client.ws.sendMess(answer)
+
     def onClose(self, wasClean, code, reason):
         client = self.getClient(self.getClientName())
         self.clients.remove(client)
         addRandomColor(client.worm.color)
         print("WebSocket connection closed {0}: code {1}".format(self.getClientName(), code))
+        for c in self.clients:  # type: ConnectedClient
+            if not c.updated:
+                return
+
+        print(f"update all! by loxsed client {client.name}")
+        self.calc()
+        self.sendPosToAllClients()
+
 
     def getClientName(self):
         return self.peer.__str__()
@@ -129,32 +179,30 @@ class MyServerProtocol(WebSocketServerProtocol):
         if input & InputStatus.d == InputStatus.d:
             worm.angle += settings.worm['turnAngle']
 
-    def calc(self, worm: Worm):
+    def checkCollisionWithFood(self, client: ConnectedClient):
         """in progress"""
-        if len(foodHolder) <= settings.maxNumberOfFood and random() > 0.97:
-            addFood(None)
-
-        self.checkCollisionWithFood(worm)
-
-    def checkCollisionWithFood(self, worm: Worm):
-        """in progress"""
-        head = worm.getHead()
+        head = client.worm.getHead()
 
         for food in foodHolder:
             if food.checkCollision(head):
-                self.mainWorm.eat(food)
+                client.worm.eat(food)
+                client.updateCompleteWorm = True
                 foodHolder.remove(food)
                 del food
                 break
 
+
 if __name__ == '__main__':
 
+    port = 9000
     factory = WebSocketServerFactory("ws://127.0.0.1:9000")
-    factory.protocol = MyServerProtocol
+    factory.protocol = SlitherServer
 
     loop = asyncio.get_event_loop()
     coro = loop.create_server(factory, '0.0.0.0', 9000)
     server = loop.run_until_complete(coro)
+
+    print(f"start Slither server on port {port}...")
 
     try:
         loop.run_forever()

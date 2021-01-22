@@ -2,6 +2,7 @@ import asyncio
 import queue
 from game import Game
 from worm import Worm
+from food import Food, foodHolder
 import settings
 
 from Message import Message, MesType
@@ -11,8 +12,8 @@ from autobahn.asyncio.websocket import WebSocketClientProtocol, WebSocketClientF
 mesToSend = queue.Queue()
 
 
-class MyClientProtocol(WebSocketClientProtocol):
-    updatedFromServer = False
+class SlitherClient(WebSocketClientProtocol):
+    updatedByServer = False
     movedByServer = False
     game = None
 
@@ -42,16 +43,14 @@ class MyClientProtocol(WebSocketClientProtocol):
         elif mes.type == MesType.Position:
             if settings.debug:
                 print(f"update position: {mes.mes}")
-            for worm in mes.mes:
-                if worm[Worm.d_name] != 'you':
-                    self.handleOtherWorm(worm)
-                else:
-                    self.game.mainWorm.updateByData(worm)
-                    if worm[Worm.d_head] != -1:
-                        self.movedByServer = True
-                    self.updatedFromServer = True
-            self.checkIfSomeoneDisconnected()
 
+            wormData = mes.mes['w']
+            foodData = mes.mes['f']
+
+            self.updateWorms(wormData)
+            self.updateFood(foodData)
+
+        self.updatedByServer = True
         getMessage = True
 
     def onClose(self, wasClean, code, reason):
@@ -63,27 +62,69 @@ class MyClientProtocol(WebSocketClientProtocol):
     def startGame(self):
         pass
 
-    def handleOtherWorm(self, otherWormData):
-        worm = next((worm for worm in self.game.otherWorms if worm.name == otherWormData[Worm.d_name]), False)
-        if worm:
-            worm.updateByData(otherWormData)
-        else:
-            worm = Worm(
-                name=otherWormData[Worm.d_name],
-                coord=otherWormData[Worm.d_head],
-                color=otherWormData[Worm.d_color],
-                surface=self.game.surface
-            )
-            self.game.otherWorms.append(worm)
-        worm.updatedByServer = True
+    def updateWorms(self, wormData):
 
-    def checkIfSomeoneDisconnected(self):
+        for worm_d in wormData:
+            if worm_d[Worm.d_name] == 'you':
+                self.game.mainWorm.updateByData(worm_d)
+                if worm_d[Worm.d_head] != -1:
+                    self.movedByServer = True
+                self.game.mainWorm.updatedByServer = True
+            else:
+                exist = False
+                for w in self.game.otherWorms:  # type: Worm
+                    if w.name == worm_d[Worm.d_name]:
+                        w.updateByData(worm_d)
+                        exist = True
+                        break
+
+                if not exist:
+                    worm = Worm(
+                        name=worm_d[Worm.d_name],
+                        coord=worm_d[Worm.d_head],
+                        color=worm_d[Worm.d_color],
+                        surface=self.game.surface
+                    )
+                    worm.updateByData(worm_d)
+                    worm.updatedByServer = True
+                    self.game.otherWorms.append(worm)
+
         for w in self.game.otherWorms:  # type: Worm
             if not w.updatedByServer:
-                print(f"someone disconnected! ({w.name})")
                 self.game.otherWorms.remove(w)
             else:
                 w.updatedByServer = False
+
+    def updateFood(self, foodData):
+
+        for food_d in foodData:
+
+            exist = False
+            for f in foodHolder:
+                if f.id == food_d[Food.d_id]:
+                    f.updateByData(food_d)
+                    exist = True
+
+            if not exist:
+
+                food = Food(
+                    food_d[Food.d_coord],
+                    food_d[Food.d_radius],
+                    food_d[Food.d_energy],
+                    self.game.surface,
+                    food_d[Food.d_angle],
+                    food_d[Food.d_speed],
+                    food_d[Food.d_id]
+                )
+                food.updatedByServer = True
+                foodHolder.append(food)
+
+        for f in foodHolder:
+            if not f.updatedByServer:
+                foodHolder.remove(f)
+                del f
+            else:
+                f.updatedByServer = False
 
 
 class Client:
@@ -99,7 +140,7 @@ class Client:
 
     def start(self):
         factory = WebSocketClientFactory(f"ws://{self.__host}:{self.__port}")
-        factory.protocol = MyClientProtocol
+        factory.protocol = SlitherClient
 
         self.__loop = asyncio.get_event_loop()
         self.__coroutine = self.__loop.create_connection(factory, self.__host, self.__port)

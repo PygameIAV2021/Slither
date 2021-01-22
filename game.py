@@ -1,7 +1,7 @@
 from math import pi, floor
 from worm import Worm
 from random import randint, random
-import food as f
+from food import foodHolder
 import settings
 
 from Message import Message, MesType
@@ -22,16 +22,8 @@ class Game:
     def __init__(self, client):
 
         self.client = client
-        self.mainWorm = None
         self.otherWorms = []
-
-        if "isSinglePlayer" == "nein":
-            self.mainWorm = Worm(
-                name="player1",
-                coord=self.getRandomCoord(),
-                color=(0, 0, 255),
-                surface=self.surface
-            )
+        self.mainWorm = None
 
     def iniPygame(self):
         import pygame
@@ -71,10 +63,10 @@ class Game:
             userInput &= ~InputStatus.a_changed
             userInput &= ~InputStatus.d_changed
 
-            while not self.client.updatedFromServer:
+            while not self.client.updatedByServer:
                 await asyncio.sleep(0.0001)
 
-            self.client.updatedFromServer = False
+            self.client.updatedByServer = False
             #if not self.client.movedByServer:
             self.move()
             self.client.movedByServer = False
@@ -135,9 +127,6 @@ class Game:
 
     def move(self):
 
-        for food in f.foodHolder:
-            food.move()
-
         self.mainWorm.move()
 
     def draw(self):
@@ -148,7 +137,7 @@ class Game:
         fpsText = self.font.render('FPS: ' + str(floor(self.clock.get_fps())), False, (0, 0, 0))
         self.surface.blit(fpsText, (0, 0))
 
-        for food in f.foodHolder:
+        for food in foodHolder:
             food.draw()
 
         for otherWorms in self.otherWorms:
