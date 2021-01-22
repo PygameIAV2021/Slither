@@ -1,5 +1,5 @@
 debug = False
-# debug = True
+#debug = True
 
 screen_resolution = (1200, 800)
 fps = 70
@@ -35,11 +35,12 @@ multiplayer_max_players = len(multiplayer_colors)
 
 class ConnectionCodes:
     serverFull = 3001,
-    clientClosedByUser = 3002
+    clientClosedByUser = 3002,
+    youGetKilled = 3003
 
 
 if debug:
     worm['speed'] = 2
     worm['turnAngle'] = 0.3
-    fps = 10
+    fps = 1
     wormSpeed = 2
