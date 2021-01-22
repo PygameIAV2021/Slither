@@ -63,16 +63,14 @@ class SlitherServer(WebSocketServerProtocol):
         if settings.debug:
             print(f"message received: command:{message.type}, mes: '{message.mes}'")
 
-        answer = None
         playerName = self.getClientName()
-        client = None
 
         if message.type == MesType.HelloServer:
             if playerName not in self.clients:
                 client = ConnectedClient(playerName, self)
                 self.clients.append(client)
-
                 print("create new worm for " + playerName)
+                print(f"number of connected clients: {len(self.clients)}\n")
                 answer = Message(MesType.HelloClient, client.worm.getData(all=True))
                 self.sendMess(answer)
 
@@ -81,6 +79,9 @@ class SlitherServer(WebSocketServerProtocol):
             if settings.debug:
                 print(f"get input from client: {message.mes}")
             client = self.getClient(playerName)  # type: ConnectedClient
+            if not client:
+                return
+
             client.updateCompleteWorm = False
 
             self.handleInput(message.mes, client.worm)
