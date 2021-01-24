@@ -35,7 +35,7 @@ class SlitherClient(WebSocketClientProtocol):
         if mes.type == MesType.HelloClient:
 
             self.game.mainWorm = Worm(
-                name="ich",
+                name="you",
                 coord=mes.mes[Worm.d_head],
                 color=mes.mes[Worm.d_color],
                 surface=self.game.surface

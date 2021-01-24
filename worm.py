@@ -7,7 +7,7 @@ Created on Tue Nov 10 17:28:45 2020
 """
 
 from circle import Circle
-from settings import worm as defaultWorm
+from settings import defaultWorm
 import math
 from random import random
 from settings import screen_resolution
@@ -31,7 +31,9 @@ class Worm:
         self.updatedByServer = False
 
         head = Circle(coord, self.radius, self.color, self.surface, self.angle, self.speed)
-        head.color = (255, 0, 0)  # head color
+
+        head.color = defaultWorm['ownHeadColor'] if self.name == 'you' else defaultWorm['enemyHeadColor']
+
         self.body.append(head)
 
         for i in range(1, length):
@@ -132,7 +134,7 @@ class Worm:
             length = len(data[self.d_body])
             i = 0
             for c in self.body:
-                c.updateByData(data[self.d_body][i])
+                c.updateByData(data[self.d_body][i], updateColor=(i != 0))
                 length -= 1
                 i += 1
                 if length == 0:

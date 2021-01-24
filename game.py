@@ -95,7 +95,7 @@ class Game:
                 userInput |= InputStatus.a_changed
             userInput |= InputStatus.a
 
-            self.mainWorm.angle -= settings.worm['turnAngle']
+            self.mainWorm.angle -= settings.defaultWorm['turnAngle']
             changed = True
         elif userInput & InputStatus.a == InputStatus.a:
             userInput |= InputStatus.a_changed
@@ -108,7 +108,7 @@ class Game:
 
             userInput |= InputStatus.d
 
-            self.mainWorm.angle += settings.worm['turnAngle']
+            self.mainWorm.angle += settings.defaultWorm['turnAngle']
             changed = True
         elif userInput & InputStatus.d == InputStatus.d:
             userInput |= InputStatus.d_changed

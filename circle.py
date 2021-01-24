@@ -67,8 +67,9 @@ class Circle:
             self.d_coord: self.coord,
         }
 
-    def updateByData(self, data):
+    def updateByData(self, data, updateColor=True):
         self.radius = data[self.d_radius]
         self.diameter = self.radius * 2
         self.coord = data[self.d_coord]
-        self.color = data[self.d_color]
+        if updateColor:
+            self.color = data[self.d_color]

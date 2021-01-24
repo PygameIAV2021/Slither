@@ -7,11 +7,13 @@ maxNumberOfFood = 5
 spawnDistanceToBorder = 200
 
 # startup worm:
-worm = {
+defaultWorm = {
     'speed': 4,
     'radius': 10,
     'length': 10,
-    'turnAngle': 0.1
+    'turnAngle': 0.1,
+    'ownHeadColor': (0, 0, 255),
+    'enemyHeadColor': (255, 0, 0)
 }
 
 food = {

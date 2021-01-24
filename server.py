@@ -181,9 +181,9 @@ class SlitherServer(WebSocketServerProtocol):
 
     def handleInput(self, input, worm):
         if input & InputStatus.a == InputStatus.a:
-            worm.angle -= settings.worm['turnAngle']
+            worm.angle -= settings.defaultWorm['turnAngle']
         if input & InputStatus.d == InputStatus.d:
-            worm.angle += settings.worm['turnAngle']
+            worm.angle += settings.defaultWorm['turnAngle']
 
     def checkCollisionWithFood(self, client: ConnectedClient):
         """in progress"""
