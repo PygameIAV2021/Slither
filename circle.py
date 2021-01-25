@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Tue Nov 10 17:41:55 2020
 
@@ -39,9 +37,9 @@ class Circle:
         return self.getDistanceBorder(other_circle) <= 0
 
     def getDistanceBorder(self, other_circle):
-        return self.getDistanceCenter(other_circle) - self.radius - other_circle.radius
+        return self.getDistanceToCenter(other_circle) - self.radius - other_circle.radius
 
-    def getDistanceCenter(self, other_circle):
+    def getDistanceToCenter(self, other_circle):
         diffX = self.coord[0] - other_circle.coord[0]
         diffY = self.coord[1] - other_circle.coord[1]
         return math.sqrt(diffX ** 2 + diffY ** 2)

@@ -48,7 +48,7 @@ class Worm:
 
         for i in range(len(self.body) - 1, 0, -1):
 
-            if self.body[i].getDistanceCenter(self.body[i - 1]) <= self.radius -2:
+            if self.body[i].getDistanceToCenter(self.body[i - 1]) <= self.radius -2:
                 continue
                 # only move if the distance between the two circles is more then self.distance
 

@@ -1,5 +1,4 @@
 import asyncio
-import queue
 from game import Game
 from worm import Worm
 from food import Food, foodHolder
@@ -9,12 +8,8 @@ from Message import Message, MesType
 
 from autobahn.asyncio.websocket import WebSocketClientProtocol, WebSocketClientFactory
 
-mesToSend = queue.Queue()
-
-
 class SlitherClient(WebSocketClientProtocol):
     updatedByServer = False
-    movedByServer = False
     game = None
 
     def onConnect(self, response):
@@ -73,8 +68,6 @@ class SlitherClient(WebSocketClientProtocol):
         for worm_d in wormData:
             if worm_d[Worm.d_name] == 'you':
                 self.game.mainWorm.updateByData(worm_d)
-                if worm_d[Worm.d_head] != -1:
-                    self.movedByServer = True
                 self.game.mainWorm.updatedByServer = True
             else:
                 exist = False
@@ -139,7 +132,6 @@ class Client:
         self.__name = name
         self.__port = port
         self.__host = host
-        self.__mesToSend = queue.Queue()
         self.__run = False
         self.__coroutine = None
         self.__loop = None
@@ -161,6 +153,7 @@ class Client:
 
 #client = Client('Dustin', '192.168.178.9', 9000)
 client = Client('Dustin', '127.0.0.1', 9000)
+
 try:
     client.start()
 except KeyboardInterrupt:

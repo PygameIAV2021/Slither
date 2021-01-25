@@ -1,6 +1,4 @@
 from math import pi, floor
-from worm import Worm
-from random import randint, random
 from food import foodHolder
 import settings
 
@@ -12,8 +10,6 @@ import asyncio
 class InputStatus:
     a = 1
     d = 2
-    a_changed = 4
-    d_changed = 8
 
 class Game:
     # setting:
@@ -60,18 +56,14 @@ class Game:
             if settings.debug:
                 print("send: ", message.mes)
             self.client.sendMess(message)
-            userInput &= ~InputStatus.a_changed
-            userInput &= ~InputStatus.d_changed
 
             while not self.client.updatedByServer:
                 await asyncio.sleep(0.0001)
 
             self.client.updatedByServer = False
-            #if not self.client.movedByServer:
+
             self.move()
             self.client.movedByServer = False
-
-            #self.calc()
             self.draw()
 
             # max fps
@@ -90,28 +82,16 @@ class Game:
         changed = False
 
         if pKeys[pygame.K_a] == 1:
-
-            if userInput & InputStatus.a != InputStatus.a:
-                userInput |= InputStatus.a_changed
             userInput |= InputStatus.a
-
             self.mainWorm.angle -= settings.defaultWorm['turnAngle']
             changed = True
         elif userInput & InputStatus.a == InputStatus.a:
-            userInput |= InputStatus.a_changed
             userInput &= ~InputStatus.a
-
         if pKeys[pygame.K_d] == 1:
-
-            if userInput & InputStatus.d != InputStatus.d:
-                userInput |= InputStatus.d_changed
-
             userInput |= InputStatus.d
-
             self.mainWorm.angle += settings.defaultWorm['turnAngle']
             changed = True
         elif userInput & InputStatus.d == InputStatus.d:
-            userInput |= InputStatus.d_changed
             userInput &= ~InputStatus.d
 
         if changed:
