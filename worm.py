@@ -11,6 +11,7 @@ from settings import defaultWorm
 import math
 from random import random
 from settings import screen_resolution
+from food import FoodType, Food
 
 fullCircle = math.pi * 2
 
@@ -47,7 +48,7 @@ class Worm:
 
         for i in range(len(self.body) - 1, 0, -1):
 
-            if self.body[i].getDistanceCenter(self.body[i - 1]) <= self.distance:
+            if self.body[i].getDistanceCenter(self.body[i - 1]) <= self.radius -2:
                 continue
                 # only move if the distance between the two circles is more then self.distance
 
@@ -79,8 +80,8 @@ class Worm:
         coord = self.body[-1].coord
 
         coord = [
-             coord[0] - math.cos(self.angle) * self.distance / 2,
-             coord[1] - math.sin(self.angle) * self.distance / 2
+             coord[0] - math.cos(self.angle) * self.radius / 2,
+             coord[1] - math.sin(self.angle) * self.radius / 2
         ]
 
         circle = Circle(coord, self.radius, self.color, self.surface, self.angle, self.speed)
@@ -89,13 +90,46 @@ class Worm:
     def getHead(self):
         return self.body[0]
 
-    def eat(self, food):
+    def eat(self, food: Food):
+        FoodType.doEffects(self, food.type)
         for i in range(1, food.energy):
             self.addBodyPart()
 
-    def updateSpeed(self, speed):
+    def updateSpeed(self, speedFactor):
+        newSpeed = self.speed + speedFactor
+        if newSpeed > defaultWorm['max_speed']:
+            if self.speed == defaultWorm['max_speed']:
+                return
+            else:
+                newSpeed = defaultWorm['max_speed']
+        elif newSpeed < defaultWorm['min_speed']:
+            if newSpeed == defaultWorm['min_speed']:
+                return
+            else:
+                newSpeed = defaultWorm['min_speed']
+
+        self.speed = newSpeed
         for circle in self.body:
-            circle.speed = speed
+            circle.speed = self.speed
+
+    def updateRadius(self, radiusFactor):
+        newRadius = self.radius + radiusFactor
+        if newRadius > defaultWorm['max_radius']:
+            if self.radius == defaultWorm['max_radius']:
+                return
+            else:
+                newRadius = defaultWorm['max_radius']
+        elif newRadius < defaultWorm['min_radius']:
+            if self.radius == defaultWorm['min_radius']:
+                return
+            else:
+                newRadius = defaultWorm['min_radius']
+
+        self.radius = newRadius
+        diameter = self.radius * 2
+        for circle in self.body:
+            circle.radius = self.radius
+            circle.diameter = diameter
 
     d_head = 0
     d_color = 1

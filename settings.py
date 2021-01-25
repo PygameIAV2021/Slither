@@ -3,17 +3,29 @@ debug = False
 
 screen_resolution = (1200, 800)
 fps = 30
-maxNumberOfFood = 5
+maxNumberOfFood = 10
 spawnDistanceToBorder = 200
 
 # startup worm:
 defaultWorm = {
     'speed': 4,
+    'max_speed': 8,
+    'min_speed': 1,
     'radius': 10,
+    'max_radius': 30,
+    'min_radius': 4,
     'length': 10,
     'turnAngle': 0.1,
     'ownHeadColor': (0, 0, 255),
     'enemyHeadColor': (255, 0, 0)
+}
+
+food_type_factors = {
+    'faster': 0.4,
+    'slower': -0.6,
+    'bigger': 0.5,
+    'smaller': -0.5,
+    'count': 4
 }
 
 food = {
@@ -42,7 +54,7 @@ class ConnectionCodes:
 
 
 if debug:
-    worm['speed'] = 2
-    worm['turnAngle'] = 0.3
+    defaultWorm['speed'] = 2
+    defaultWorm['turnAngle'] = 0.3
     fps = 1
     wormSpeed = 2

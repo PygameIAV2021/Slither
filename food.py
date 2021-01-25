@@ -1,6 +1,6 @@
 from circle import Circle
 from random import random, randint
-from settings import screen_resolution, food as default_food
+from settings import screen_resolution, food as default_food, food_type_factors
 import math
 
 foodHolder = []
@@ -16,7 +16,39 @@ def addFood(surface):
         )
     )
 
-# todo: different kinds of food (faster, slower, change move radius)
+class FoodType:
+
+    nothing = 0
+    faster = 1
+    slower = 2
+    bigger = 3
+    smaller = 4
+
+    def getColor(foodType):
+        """this functions returns a color"""
+
+        if foodType == FoodType.nothing:
+            return 255, 255, 255  # white
+        elif foodType == FoodType.faster:
+            return 255, 0, 0  # red
+        elif foodType == FoodType.slower:
+            return 0, 0, 255  # blue
+        elif foodType == FoodType.bigger:
+            return (0, 255, 0) #green
+        elif foodType == FoodType.smaller:
+            return (255, 255,  0) # yellow
+        return None
+
+    def doEffects(worm, type):
+
+        if type == FoodType.faster:
+            worm.updateSpeed(food_type_factors['faster'])
+        elif type == FoodType.slower:
+            worm.updateSpeed(food_type_factors['slower'])
+        elif type == FoodType.bigger:
+            worm.updateRadius(food_type_factors['bigger'])
+        elif type == FoodType.smaller:
+            worm.updateRadius(food_type_factors['smaller'])
 
 
 class Food(Circle):
@@ -34,6 +66,9 @@ class Food(Circle):
             Food.id_counter += 1
         else:
             self.id = id
+
+        self.type = randint(0, food_type_factors['count'])
+        self.color = FoodType.getColor(self.type)
 
         self.updatedByServer = False
 
@@ -57,6 +92,8 @@ class Food(Circle):
     d_angle = 3
     d_speed = 4
     d_id = 5
+    d_type = 6
+    d_color = 7
 
     def generateData(self):
         data = {
@@ -66,6 +103,8 @@ class Food(Circle):
             Food.d_angle: self.angle,
             Food.d_speed: self.speed,
             Food.d_id: self.id,
+            Food.d_type: self.type,
+            Food.d_color: self.color
         }
 
         return data
@@ -76,5 +115,7 @@ class Food(Circle):
         self.energy = data[Food.d_energy]
         self.angle = data[Food.d_angle]
         self.speed = data[Food.d_speed]
+        self.type = data[Food.d_type]
+        self.color = data[Food.d_color]
 
         self.updatedByServer = True

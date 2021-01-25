@@ -131,10 +131,10 @@ class Game:
 
     def draw(self):
         import pygame
-        self.surface.fill((255, 255, 255))
+        self.surface.fill((0, 0, 0))
 
         # display fps:
-        fpsText = self.font.render('FPS: ' + str(floor(self.clock.get_fps())), False, (0, 0, 0))
+        fpsText = self.font.render('FPS: ' + str(floor(self.clock.get_fps())), False, (255, 255, 255))
         self.surface.blit(fpsText, (0, 0))
 
         for food in foodHolder:
