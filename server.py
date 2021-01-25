@@ -12,15 +12,18 @@ from autobahn.asyncio.websocket import WebSocketServerProtocol, WebSocketServerF
 
 
 def getRandomColor():
+    """returns and reserve a color for a connected client"""
     c = randint(0, len(settings.multiplayer_colors) - 1)
     return settings.multiplayer_colors.pop(c)
 
 
 def addRandomColor(c):
+    """add an color for future clients"""
     settings.multiplayer_colors.append(c)
 
 
 def getRandomCoord():
+    """returns valid random coord"""
     return [
         randint(settings.spawnDistanceToBorder, settings.screen_resolution[0] - settings.spawnDistanceToBorder),
         randint(settings.spawnDistanceToBorder, settings.screen_resolution[1] - settings.spawnDistanceToBorder)
@@ -28,6 +31,7 @@ def getRandomCoord():
 
 
 class ConnectedClient:
+    """A connected Client and his information and status"""
     def __init__(self, name, websocket):
         self.name = name
         self.worm = Worm(
@@ -42,9 +46,12 @@ class ConnectedClient:
 
 
 class SlitherServer(WebSocketServerProtocol):
+    """The server-logic for the game"""
     clients = []
     worms = []
     game = Game('foo')
+    cached_foodPosition = None
+
 
     def onConnect(self, request):
         print("Client connecting: {0}".format(request.peer))
@@ -92,13 +99,15 @@ class SlitherServer(WebSocketServerProtocol):
                 if not c.updated:
                     return
 
+            # this client is the last one who sent to the server -> he triggers the broadcast to all clients
             self.calc()
             self.sendPosToAllClients()
 
         else:
-            print("was ist das für ne Nachricht???")
+            print("unexpected message!")
 
     def calc(self):
+        """calculates the moves and collisions"""
 
         for f in foodHolder:  # type: Food
             f.move()
@@ -115,15 +124,14 @@ class SlitherServer(WebSocketServerProtocol):
             addFood(None)
 
     def generatePositionDataForPlayer(self, connectedClient: ConnectedClient):
-
-        data = {
+        """generates the position-data for the message to the 'connectedClient'"""
+        return {
             'w': self.generateWormPositionData(connectedClient),
             'f': self.generateFoodPositionData()
         }
 
-        return data
-
     def generateWormPositionData(self, connectedClient: ConnectedClient):
+        """generate position data of all worms for a specified client (connectedClient)"""
         worms_data = []
         for client in self.clients:  # type: ConnectedClient
             if client.name != connectedClient.name:
@@ -136,6 +144,7 @@ class SlitherServer(WebSocketServerProtocol):
         return worms_data
 
     def generateFoodPositionData(self):
+        """generate position data of all foods"""
 
         return [f.generateData() for f in foodHolder]
 
@@ -145,13 +154,12 @@ class SlitherServer(WebSocketServerProtocol):
         self.sendMessage(mess.serialize(), isBinary=True)
 
     def sendPosToAllClients(self):
-
+        """send positions of objects to all clients"""
         for client in self.clients:
             client.updated = False
 
         for client in self.clients:
             answer = Message(MesType.Position, self.generatePositionDataForPlayer(client))
-
             client.ws.sendMess(answer)
 
     def onClose(self, wasClean, code, reason):
@@ -171,6 +179,7 @@ class SlitherServer(WebSocketServerProtocol):
 
 
     def getClientName(self):
+        """returns the unique identifier of a client"""
         return self.peer.__str__()
 
     def getClient(self, name):

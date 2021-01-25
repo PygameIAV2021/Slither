@@ -16,6 +16,7 @@ def addFood(surface):
         )
     )
 
+
 class FoodType:
 
     nothing = 0
@@ -25,7 +26,7 @@ class FoodType:
     smaller = 4
 
     def getColor(foodType):
-        """this functions returns a color"""
+        """returns the color for the foodType"""
 
         if foodType == FoodType.nothing:
             return 255, 255, 255  # white
