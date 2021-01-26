@@ -232,6 +232,28 @@ class SlitherServer(WebSocketServerProtocol):
 
 if __name__ == '__main__':
 
+    def get_ip():
+        """Returns the ip-address of the host"""
+
+        import socket
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            # doesn't even have to be reachable
+            s.connect(('10.255.255.255', 1))
+            ip = s.getsockname()[0]
+        except Exception:
+            ip = '127.0.0.1'
+        finally:
+            s.close()
+        return ip
+
+    # Creates the autobahn-webSocket-factory and bind the SlitherServer as the protocol.
+    # How the factory and the SlitherServer works:
+    #   If a client connect to the server, the factory provides a new object of the SlitherServer.
+    #   So each connection has is own SlitherServer-Object.
+    #   The static attributes of the SlitherServer-class are available and synchronised
+    #       for all connections.
+    #   These SlitherServer-Objects will be deleted if the client disconnect.
     port = 9000
     factory = WebSocketServerFactory("ws://127.0.0.1:9000")
     factory.protocol = SlitherServer
@@ -240,7 +262,7 @@ if __name__ == '__main__':
     coro = loop.create_server(factory, '0.0.0.0', 9000)
     server = loop.run_until_complete(coro)
 
-    print(f"start Slither server on port {port}...")
+    print(f"start Slither server on {get_ip()}:{port} ...")
 
     try:
         loop.run_forever()
