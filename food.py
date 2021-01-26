@@ -6,7 +6,9 @@ import math
 foodHolder = []
 
 
-def addFood(surface):
+def addFood(surface) -> None:
+    """creates a new food object an add it to the foodHolder-list"""
+
     foodHolder.append(
         Food(
             coord=[randint(0, screen_resolution[0]), randint(0, screen_resolution[1])],
@@ -18,6 +20,7 @@ def addFood(surface):
 
 
 class FoodType:
+    """The class for the different kinds of food. Containing all types, colors and the effects"""
 
     nothing = 0
     faster = 1
@@ -40,7 +43,8 @@ class FoodType:
             return (255, 255,  0) # yellow
         return None
 
-    def doEffects(worm, type):
+    def doEffects(worm, type) -> None:
+        """Changes the worm attributes by the food-type"""
 
         if type == FoodType.faster:
             worm.updateSpeed(food_type_factors['faster'])
@@ -53,6 +57,8 @@ class FoodType:
 
 
 class Food(Circle):
+    """Child class from Circle-class"""
+
     def __init__(self, coord, radius, energy, surface, angle = 0, speed = default_food['speed'], id = None):
         super().__init__(coord, radius, (0, 255, 0), surface, angle, speed)
         self.energy = energy
@@ -75,7 +81,8 @@ class Food(Circle):
 
     id_counter = 0
 
-    def move(self, newAngle = None):
+    def move(self, newAngle = None) -> None:
+        """Moves the food by its speed and angle. You can pass a new angle"""
 
         if newAngle is not None:
             self.angle = newAngle
@@ -87,6 +94,7 @@ class Food(Circle):
 
         self.handleOutOfScreen()
 
+    # indexes for getData and updateByData (better then strings, for the multiplayer):
     d_coord = 0
     d_radius = 1
     d_energy = 2
@@ -96,7 +104,9 @@ class Food(Circle):
     d_type = 6
     d_color = 7
 
-    def generateData(self):
+    def generateData(self) -> dict:
+        """generates data of this food-object for the webSocket-client"""
+
         data = {
             Food.d_coord: self.coord,
             Food.d_radius: self.radius,
@@ -110,7 +120,9 @@ class Food(Circle):
 
         return data
 
-    def updateByData(self, data):
+    def updateByData(self, data: dict) -> None:
+        """update this food-object with the data provided by the webSocket-server"""
+
         self.coord = data[Food.d_coord]
         self.radius = data[Food.d_radius]
         self.energy = data[Food.d_energy]

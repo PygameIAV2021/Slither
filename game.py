@@ -6,12 +6,15 @@ from Message import Message, MesType
 import asyncio
 
 
-# user input status bits
 class InputStatus:
+    """user input status bits"""
     a = 1
     d = 2
 
+
 class Game:
+    """The game class. For drawing and calculations"""
+
     # setting:
     fullCircle = pi * 2
 
@@ -21,7 +24,9 @@ class Game:
         self.otherWorms = []
         self.mainWorm = None
 
-    def iniPygame(self):
+    def iniPygame(self) -> None:
+        """initial pygame"""
+
         import pygame
 
         pygame.init()
@@ -33,9 +38,8 @@ class Game:
         self.surface = pygame.display.set_mode(settings.screen_resolution, 0, 32)
         self.run = True
 
-
-    async def start_multiplayer(self):
-        """start pygame (client side of the multiplayer)"""
+    async def start_multiplayer(self) -> None:
+        """say hello to server, start the game loop and send inputs to the server"""
 
         self.iniPygame()
         message = Message(MesType.HelloServer, 'Guten Tag Server')
@@ -44,7 +48,7 @@ class Game:
 
         self.client.sendMess(message)
 
-        while self.mainWorm == None:
+        while self.mainWorm is None:
             await asyncio.sleep(0.1)
 
         userInput = 0
@@ -74,7 +78,8 @@ class Game:
         self.client.sendClose()
         raise KeyboardInterrupt
 
-    def getInput(self, userInput):
+    def getInput(self, userInput: int) -> int:
+        """check the pygame events and set userInput. Also change the mainWorm angle"""
 
         import pygame
         pKeys = pygame.key.get_pressed()
@@ -105,11 +110,14 @@ class Game:
 
         return userInput
 
-    def move(self):
+    def move(self) -> None:
+        """move only the main worm. only called on the client side"""
 
         self.mainWorm.move()
 
-    def draw(self):
+    def draw(self) -> None:
+        """draw the worms, foods and the background"""
+
         import pygame
         self.surface.fill((0, 0, 0))
 

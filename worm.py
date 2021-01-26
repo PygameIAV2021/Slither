@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Created on Tue Nov 10 17:28:45 2020
 
@@ -17,6 +15,7 @@ fullCircle = math.pi * 2
 
 
 class Worm:
+    """The worm-class"""
 
     def __init__(self, name, coord, surface, color, length=defaultWorm['length']):
         self.name = name
@@ -35,12 +34,14 @@ class Worm:
 
         head.color = defaultWorm['ownHeadColor'] if self.name == 'you' else defaultWorm['enemyHeadColor']
 
+        # the body is a list of circle objects. Index 0 is the head
         self.body.append(head)
 
         for i in range(1, length):
             self.addBodyPart()
 
-    def move(self):
+    def move(self) -> None:
+        """change the position of the worm by speed and angle"""
 
         self.body[0].coord[0] += (math.cos(self.angle) * self.speed)
         self.body[0].coord[1] += (math.sin(self.angle) * self.speed)
@@ -48,11 +49,11 @@ class Worm:
 
         for i in range(len(self.body) - 1, 0, -1):
 
-            if self.body[i].getDistanceToCenter(self.body[i - 1]) <= self.radius -2:
+            if self.body[i].getDistanceToCenter(self.body[i - 1]) <= self.radius - 2:
                 continue
-                # only move if the distance between the two circles is more then self.distance
+                # only move if the distance between the two circles is more then self.radius - 2
 
-            d = [
+            distance = [
                 self.body[i - 1].coord[0] - self.body[i].coord[0],
                 self.body[i - 1].coord[1] - self.body[i].coord[1]
             ]
@@ -60,23 +61,26 @@ class Worm:
             # if circle[i] is 'out of screen'/'other side', then make a correction for d.
             # After that i have the correct angle
             for axis in range(2):
-                if abs(d[axis]) >= screen_resolution[axis] - self.body[i].diameter:
+                if abs(distance[axis]) >= screen_resolution[axis] - self.body[i].diameter:
                     if self.body[i - 1].coord[axis] > self.halfScreen[axis]:
-                        d[axis] -= screen_resolution[axis]  # left or top out
+                        distance[axis] -= screen_resolution[axis]  # left or top out
                     else:
-                        d[axis] += screen_resolution[axis]  # right or bottom out
+                        distance[axis] += screen_resolution[axis]  # right or bottom out
 
-            angle = math.atan2(d[1], d[0])
+            angle = math.atan2(distance[1], distance[0])
             angle %= fullCircle
             self.body[i].move(angle)
             self.body[i].handleOutOfScreen()
 
-    def draw(self):
+    def draw(self) -> None:
+        """draw each circle in the body"""
+
         for circle in self.body[::-1]:
             circle.draw()
 
-    def addBodyPart(self):
-        """ add an circle object at the end of the body"""
+    def addBodyPart(self) -> None:
+        """add an circle object at the end of the body"""
+
         coord = self.body[-1].coord
 
         coord = [
@@ -87,15 +91,21 @@ class Worm:
         circle = Circle(coord, self.radius, self.color, self.surface, self.angle, self.speed)
         self.body.append(circle)
 
-    def getHead(self):
+    def getHead(self) -> Circle:
+        """Returns the head of the worm (first circle object of the body)"""
+
         return self.body[0]
 
-    def eat(self, food: Food):
+    def eat(self, food: Food) -> None:
+        """Eat the passed food. Grow and do the effects"""
+
         FoodType.doEffects(self, food.type)
         for i in range(1, food.energy):
             self.addBodyPart()
 
-    def updateSpeed(self, speedFactor):
+    def updateSpeed(self, speedFactor: float) -> None:
+        """Updates the speed of the worm. Each circle in body has to be updated"""
+
         newSpeed = self.speed + speedFactor
         if newSpeed > defaultWorm['max_speed']:
             if self.speed == defaultWorm['max_speed']:
@@ -112,7 +122,9 @@ class Worm:
         for circle in self.body:
             circle.speed = self.speed
 
-    def updateRadius(self, radiusFactor):
+    def updateRadius(self, radiusFactor) -> None:
+        """Updates the radius of the worm. Each circle in body has to be updated"""
+
         newRadius = self.radius + radiusFactor
         if newRadius > defaultWorm['max_radius']:
             if self.radius == defaultWorm['max_radius']:
@@ -131,6 +143,7 @@ class Worm:
             circle.radius = self.radius
             circle.diameter = diameter
 
+    # indexes for getData and updateByData (better then strings, for the multiplayer):
     d_head = 0
     d_color = 1
     d_angle = 2
@@ -138,7 +151,8 @@ class Worm:
     d_name = 4
     d_body = 5
 
-    def getData(self, all=False):
+    def getData(self, all=False) -> dict:
+        """generates data of this worm-object for the webSocket-client"""
 
         data = {
             self.d_head: -1,
@@ -157,14 +171,16 @@ class Worm:
 
         return data
 
-    def updateByData(self, data):
+    def updateByData(self, data) -> None:
+        """update this worm-object with the data provided by the webSocket-server"""
+
         if data[self.d_head] != -1:
             self.body[0].coord = data[self.d_head]
         self.angle = data[self.d_angle]
         self.color = data[self.d_color]
         self.speed = data[self.d_speed]
 
-        if data[self.d_body] != -1:
+        if data[self.d_body] != -1:  # in some cases only the head is updated, the rest is calculated by the client self
             length = len(data[self.d_body])
             i = 0
             for c in self.body:

@@ -11,19 +11,22 @@ from circle import Circle
 from autobahn.asyncio.websocket import WebSocketServerProtocol, WebSocketServerFactory
 
 
-def getRandomColor():
+def getRandomColor() -> tuple:
     """returns and reserve a color for a connected client"""
+
     c = randint(0, len(settings.multiplayer_colors) - 1)
     return settings.multiplayer_colors.pop(c)
 
 
 def addRandomColor(c):
     """add an color for future clients"""
+
     settings.multiplayer_colors.append(c)
 
 
-def getRandomCoord():
+def getRandomCoord() -> list:
     """returns valid random coord"""
+
     return [
         randint(settings.spawnDistanceToBorder, settings.screen_resolution[0] - settings.spawnDistanceToBorder),
         randint(settings.spawnDistanceToBorder, settings.screen_resolution[1] - settings.spawnDistanceToBorder)
@@ -32,6 +35,7 @@ def getRandomCoord():
 
 class ConnectedClient:
     """A connected Client and his information and status"""
+
     def __init__(self, name, websocket):
         self.name = name
         self.worm = Worm(
@@ -45,13 +49,44 @@ class ConnectedClient:
         self.updateCompleteWorm = False
 
 
+def generateFoodPositionData() -> list:
+    """generate position data of all foods"""
+
+    return [f.generateData() for f in foodHolder]
+
+
+def checkCollisionWithFood(client: ConnectedClient):
+    """Check if the head of the worm of the client collide with a food.
+        If collision detected: call worm.eat and remove food from foodHolder-list.
+    """
+
+    head = client.worm.getHead()
+
+    for food in foodHolder:
+        if food.checkCollision(head):
+            client.worm.eat(food)
+            client.updateCompleteWorm = True
+            foodHolder.remove(food)
+            del food
+            break
+
+
+def handleInput(cInput: int, client: ConnectedClient) -> None:
+    """Handle the keyboard input from a client. Changes the angle of the worm"""
+
+    if cInput & InputStatus.a == InputStatus.a:
+        client.worm.angle -= settings.defaultWorm['turnAngle']
+    if cInput & InputStatus.d == InputStatus.d:
+        client.worm.angle += settings.defaultWorm['turnAngle']
+
+
 class SlitherServer(WebSocketServerProtocol):
     """The server-logic for the game"""
+
     clients = []
     worms = []
-    game = Game('foo')
+    game = Game(None)
     cached_foodPosition = None
-
 
     def onConnect(self, request):
         print("Client connecting: {0}".format(request.peer))
@@ -61,7 +96,7 @@ class SlitherServer(WebSocketServerProtocol):
     def onOpen(self):
         print("WebSocket connection open.")
 
-    def onMessage(self, payload, isBinary):
+    def onMessage(self, payload, isBinary) -> None:
         if not isBinary:
             return
 
@@ -91,7 +126,7 @@ class SlitherServer(WebSocketServerProtocol):
 
             client.updateCompleteWorm = False
 
-            self.handleInput(message.mes, client.worm)
+            handleInput(message.mes, client)
 
             client.updated = True
 
@@ -99,14 +134,14 @@ class SlitherServer(WebSocketServerProtocol):
                 if not c.updated:
                     return
 
-            # this client is the last one who sent to the server -> he triggers the broadcast to all clients
+            # this client is the last one who sent something to the server -> he triggers the broadcast to all clients
             self.calc()
             self.sendPosToAllClients()
 
         else:
             print("unexpected message!")
 
-    def calc(self):
+    def calc(self) -> None:
         """calculates the moves and collisions"""
 
         for f in foodHolder:  # type: Food
@@ -115,7 +150,7 @@ class SlitherServer(WebSocketServerProtocol):
         for client in self.clients:
             client.worm.move()
 
-            self.checkCollisionWithFood(client)
+            checkCollisionWithFood(client)
 
         for client in self.clients:
             self.checkCollisionWithOtherWorm(client)
@@ -123,15 +158,17 @@ class SlitherServer(WebSocketServerProtocol):
         if len(foodHolder) <= settings.maxNumberOfFood and random() > 0.97:
             addFood(None)
 
-    def generatePositionDataForPlayer(self, connectedClient: ConnectedClient):
+    def generatePositionDataForPlayer(self, connectedClient: ConnectedClient) -> dict:
         """generates the position-data for the message to the 'connectedClient'"""
+
         return {
             'w': self.generateWormPositionData(connectedClient),
-            'f': self.generateFoodPositionData()
+            'f': generateFoodPositionData()
         }
 
-    def generateWormPositionData(self, connectedClient: ConnectedClient):
+    def generateWormPositionData(self, connectedClient: ConnectedClient) -> list:
         """generate position data of all worms for a specified client (connectedClient)"""
+
         worms_data = []
         for client in self.clients:  # type: ConnectedClient
             if client.name != connectedClient.name:
@@ -143,18 +180,16 @@ class SlitherServer(WebSocketServerProtocol):
 
         return worms_data
 
-    def generateFoodPositionData(self):
-        """generate position data of all foods"""
+    def sendMess(self, mess: Message) -> None:
+        """send message to the client"""
 
-        return [f.generateData() for f in foodHolder]
-
-    def sendMess(self, mess: Message):
         if settings.debug:
             print(f"send message: {mess.type} {mess.mes}")
         self.sendMessage(mess.serialize(), isBinary=True)
 
-    def sendPosToAllClients(self):
+    def sendPosToAllClients(self) -> None:
         """send positions of objects to all clients"""
+
         for client in self.clients:
             client.updated = False
 
@@ -162,7 +197,11 @@ class SlitherServer(WebSocketServerProtocol):
             answer = Message(MesType.Position, self.generatePositionDataForPlayer(client))
             client.ws.sendMess(answer)
 
-    def onClose(self, wasClean, code, reason):
+    def onClose(self, wasClean, code, reason) -> None:
+        """Handle the webSocket-onClose event.
+            Remove the client from the list and make his color available for new incoming connections.
+        """
+
         print("WebSocket connection closed {0}: code {1}".format(self.getClientName(), code))
         client = self.getClient(self.getClientName())
         if client:
@@ -173,40 +212,28 @@ class SlitherServer(WebSocketServerProtocol):
             if not c.updated:
                 return
 
-        # received input from each client -> calc the move and collision -> send positions
+        # received input from each client, yet -> calc the move and collision -> send positions
         self.calc()
         self.sendPosToAllClients()
 
+    def getClientName(self) -> str:
+        """Returns the unique identifier of a client"""
 
-    def getClientName(self):
-        """returns the unique identifier of a client"""
         return self.peer.__str__()
 
-    def getClient(self, name):
+    def getClient(self, name: str):
+        """Try to get a client by name"""
+
         try:
             return next(c for c in self.clients if c.name == name)  # type: ConnectedClient
         except StopIteration:
             return False
 
-    def handleInput(self, input, worm):
-        if input & InputStatus.a == InputStatus.a:
-            worm.angle -= settings.defaultWorm['turnAngle']
-        if input & InputStatus.d == InputStatus.d:
-            worm.angle += settings.defaultWorm['turnAngle']
-
-    def checkCollisionWithFood(self, client: ConnectedClient):
-        """in progress"""
-        head = client.worm.getHead()
-
-        for food in foodHolder:
-            if food.checkCollision(head):
-                client.worm.eat(food)
-                client.updateCompleteWorm = True
-                foodHolder.remove(food)
-                del food
-                break
-
-    def checkCollisionWithOtherWorm(self, client: ConnectedClient):
+    def checkCollisionWithOtherWorm(self, client: ConnectedClient) -> None:
+        """Check if the head of the worm of the connected client collide with another worm.
+            If collision detected: Delete the worm of the connected client and close the connection.
+            The OnClose-event will trigger.
+        """
 
         collision = False
         for opponentClient in self.clients:  # type: ConnectedClient
@@ -258,9 +285,10 @@ if __name__ == '__main__':
     factory = WebSocketServerFactory("ws://127.0.0.1:9000")
     factory.protocol = SlitherServer
 
+    # used the best-practice from the autobahn-webSocket-asyncio documentation:
     loop = asyncio.get_event_loop()
-    coro = loop.create_server(factory, '0.0.0.0', 9000)
-    server = loop.run_until_complete(coro)
+    coroutine = loop.create_server(factory, '0.0.0.0', 9000)
+    server = loop.run_until_complete(coroutine)
 
     print(f"start Slither server on {get_ip()}:{port} ...")
 

@@ -8,7 +8,10 @@ from Message import Message, MesType
 
 from autobahn.asyncio.websocket import WebSocketClientProtocol, WebSocketClientFactory
 
+
 class SlitherClient(WebSocketClientProtocol):
+    """The client webSocket"""
+
     updatedByServer = False
     game = None
 
@@ -16,12 +19,16 @@ class SlitherClient(WebSocketClientProtocol):
         print("connected to sever: {0}".format(response.peer))
 
     async def onOpen(self):
+        """Start the game when connection established"""
+
         print("WebSocket connection open.")
 
         self.game = Game(self)
         await self.game.start_multiplayer()
 
     def onMessage(self, payload, isBinary):
+        """handle the messages from the server. Update the pygame-objects"""
+
         mes = Message.deserialize(payload)  # type: Message
 
         if settings.debug:
@@ -57,13 +64,13 @@ class SlitherClient(WebSocketClientProtocol):
         print(f"WebSocket connection closed: {code}")
         raise KeyboardInterrupt
 
-    def sendMess(self, message: Message):
+    def sendMess(self, message: Message) -> None:
+        """serialize message and send it to the slither-server"""
+
         self.sendMessage(payload=message.serialize(), isBinary=True)
 
-    def startGame(self):
-        pass
-
-    def updateWorms(self, wormData):
+    def updateWorms(self, wormData: list) -> None:
+        """update worm, create worm or delete worm"""
 
         for worm_d in wormData:
             if worm_d[Worm.d_name] == 'you':
@@ -94,7 +101,8 @@ class SlitherClient(WebSocketClientProtocol):
             else:
                 w.updatedByServer = False
 
-    def updateFood(self, foodData):
+    def updateFood(self, foodData: list) -> None:
+        """move food, create food or delete food"""
 
         for food_d in foodData:
 
@@ -127,6 +135,7 @@ class SlitherClient(WebSocketClientProtocol):
 
 
 class Client:
+    """The Client. Handle the SlitherClient-webSocket"""
 
     def __init__(self, name: str, host: str, port: int):
         self.__name = name
@@ -136,17 +145,23 @@ class Client:
         self.__coroutine = None
         self.__loop = None
 
-    def start(self):
+    def start(self) -> None:
+        """start the SlitherClient-webSocket"""
+
+        # creates the autobahn-webSocket-factory and bind the SlitherClient as the protocol
         factory = WebSocketClientFactory(f"ws://{self.__host}:{self.__port}")
         factory.protocol = SlitherClient
 
+        # used the best-practice from the autobahn-webSocket-asyncio documentation:
         self.__loop = asyncio.get_event_loop()
         self.__coroutine = self.__loop.create_connection(factory, self.__host, self.__port)
         self.__loop.run_until_complete(self.__coroutine)
 
         self.__loop.run_forever()
 
-    def close(self):
+    def close(self) -> None:
+        """close the connection"""
+
         if self.__loop is asyncio.AbstractEventLoop:
             self.__loop.close()
 
