@@ -1,4 +1,5 @@
 import asyncio
+from sys import argv
 from Message import Message, MesType
 from worm import Worm
 from game import Game, InputStatus
@@ -257,7 +258,7 @@ class SlitherServer(WebSocketServerProtocol):
                     break
 
 
-if __name__ == '__main__':
+def runServer(argv):
 
     def get_ip():
         """Returns the ip-address of the host"""
@@ -282,12 +283,16 @@ if __name__ == '__main__':
     #       for all connections.
     #   These SlitherServer-Objects will be deleted if the client disconnect.
     port = 9000
-    factory = WebSocketServerFactory("ws://127.0.0.1:9000")
+
+    if len(argv) > 1:
+        port = argv[1]
+
+    factory = WebSocketServerFactory(f"ws://127.0.0.1:{port}")
     factory.protocol = SlitherServer
 
     # used the best-practice from the autobahn-webSocket-asyncio documentation:
     loop = asyncio.get_event_loop()
-    coroutine = loop.create_server(factory, '0.0.0.0', 9000)
+    coroutine = loop.create_server(factory, '0.0.0.0', port)
     server = loop.run_until_complete(coroutine)
 
     print(f"start Slither server on {get_ip()}:{port} ...")

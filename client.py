@@ -137,8 +137,7 @@ class SlitherClient(WebSocketClientProtocol):
 class Client:
     """The Client. Handle the SlitherClient-webSocket"""
 
-    def __init__(self, name: str, host: str, port: int):
-        self.__name = name
+    def __init__(self, host: str, port: int):
         self.__port = port
         self.__host = host
         self.__run = False
@@ -164,16 +163,3 @@ class Client:
 
         if self.__loop is asyncio.AbstractEventLoop:
             self.__loop.close()
-
-
-#client = Client('Dustin', '192.168.178.9', 9000)
-client = Client('Dustin', '127.0.0.1', 9000)
-
-try:
-    client.start()
-except KeyboardInterrupt:
-    import sys, os
-    try:
-        sys.exit(0)
-    except SystemExit:
-        os._exit(0)
