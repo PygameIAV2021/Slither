@@ -1,5 +1,4 @@
 import asyncio
-from sys import argv
 from Message import Message, MesType
 from worm import Worm
 from game import Game, InputStatus
