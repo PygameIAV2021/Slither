@@ -1,8 +1,9 @@
 # Slither
-
+![img.png](screenshot.png)
 ## About the game
 
-Das ist ein Multiplayer Netzwerk Spiel bei den man einen Wurm steuert. Der Wurm kann sich in allen Richtungen (360 Grad) bewegen. 
+Das ist ein Multiplayer Netzwerk Spiel bei den man einen Wurm steuert. Der Wurm kann sich in allen Richtungen (360 Grad) bewegen.
+Der eigene Wurm ist durch einen blauen Kopf gekennzeichnet.
 Durch Items kann er seine Größe und Geschwindigkeit verändern.
 Das Spielfeld hat keine echten Grenzen. Wenn sich ein Wurm auf eine Grenze zubewegt, erscheint er auf der anderen Seite des Spielfeldes.
 Man stirbt, wenn man mit dem Kopf des Wurmes in einen anderen Wurm hineinfährt.
