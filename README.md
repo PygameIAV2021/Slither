@@ -1,6 +1,6 @@
 # Slither
 ![img.png](screenshot.png)
-## About the game
+## Über das Spiel
 
 Das ist ein Multiplayer Netzwerk Spiel bei den man einen Wurm steuert. Der Wurm kann sich in allen Richtungen (360 Grad) bewegen.
 Der eigene Wurm ist durch einen blauen Kopf gekennzeichnet.
@@ -11,6 +11,13 @@ Das Ziel ist also möglichst lange zu überleben, möglichst viele zu töten und
 
 Der Fokus ist Hauptsächlich auf den Multiplayer Modus gelegt. 
 Über ein IP-Netzwerk können sich Spieler auf einen Server verbinden und gegeneinander spielen.
+Wenn man ein Spiel beitritt, ist man für die Anfangszeit unsterblich, kann aber auch niemanden Schaden hinzufügen.
+
+## Warum habe ich dieses Projekt programmiert?
+Dies ist ein Schulprojekt der Rudolf-Diesel-Fachschule Nürnberg. 
+Ich habe dieses Spiel gewählt, um die Möglichkeit zu bekommen, wie ein Echtzeit Multiplayer Game funktioniert.
+Auch wenn meine gewählte Lösung eine Simple ist, konnte ich daraus was lernen.
+
 
 ## Steuerung
 
@@ -166,8 +173,7 @@ In einer neueren Version würde ich dieses Modell ändern, wahrscheinlich auf ei
 
 #### Aufgaben der Clients:
 * Verbindung mit Server aufbauen
-* Senden der Benutzer eingaben
-* Empfangen der neuen Positionen
+* Senden der Benutzereingaben
+* Empfangen der neuen Positionen bzw. Richtungs-/Geschwindigkeitsänderungen
 * Teilweise selbständige Berechnung der Bewegungen
 * Zeichnen der Objekte
-``
