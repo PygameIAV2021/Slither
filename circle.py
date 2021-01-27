@@ -28,6 +28,7 @@ class Circle:
 
         self.coord[0] += math.cos(self.angle) * self.speed
         self.coord[1] += math.sin(self.angle) * self.speed
+        self.handleOutOfScreen()
 
     def draw(self) -> None:
         """draw this circle. Uses the pygame.draw.circle"""

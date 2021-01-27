@@ -81,19 +81,6 @@ class Food(Circle):
 
     id_counter = 0
 
-    def move(self, newAngle = None) -> None:
-        """Moves the food by its speed and angle. You can pass a new angle"""
-
-        if newAngle is not None:
-            self.angle = newAngle
-            self.vector[0] = math.cos(self.angle) * self.speed
-            self.vector[1] = math.sin(self.angle) * self.speed
-
-        self.coord[0] += self.vector[0]
-        self.coord[1] += self.vector[1]
-
-        self.handleOutOfScreen()
-
     # indexes for getData and updateByData (better then strings, for the multiplayer):
     d_coord = 0
     d_radius = 1
