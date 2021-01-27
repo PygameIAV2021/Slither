@@ -10,7 +10,7 @@ spawnDistanceToBorder = 200
 
 # startup worm:
 defaultWorm = {
-    'speed': 4,
+    'speed': 6,
     'max_speed': 8,
     'min_speed': 1,
     'radius': 10,
