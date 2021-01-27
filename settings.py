@@ -1,7 +1,9 @@
+# This is the setting file. Should be similar on the client- and server-side
+
 debug = False
 #debug = True
 
-screen_resolution = (1200, 800)
+screen_resolution = (1500, 1000)
 fps = 30
 maxNumberOfFood = 10
 spawnDistanceToBorder = 200
@@ -54,6 +56,7 @@ class ConnectionCodes:
 
 
 if debug:
+    screen_resolution = (1000, 800)
     defaultWorm['speed'] = 2
     defaultWorm['turnAngle'] = 0.3
     fps = 1
