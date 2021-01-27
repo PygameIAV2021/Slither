@@ -115,7 +115,16 @@ class SlitherServer(WebSocketServerProtocol):
                 self.clients.append(client)
                 print("create new worm for " + playerName)
                 print(f"number of connected clients: {len(self.clients)}\n")
-                answer = Message(MesType.HelloClient, client.worm.getData(all=True))
+                wormData = client.worm.getData(all=True)
+
+                for c in self.clients:  # type: ConnectedClient
+                    if c.name != client.name:
+                        # send the new worm to all clients:
+                        c.ws.sendMess(Message(MesType.NewEnemy, wormData))
+                        # send the other worms to the connected client:
+                        self.sendMess(Message(MesType.NewEnemy, c.worm.getData(all=True)))
+
+                answer = Message(MesType.HelloClient, wormData)
                 self.sendMess(answer)
 
         elif message.type == MesType.Input:
@@ -175,7 +184,7 @@ class SlitherServer(WebSocketServerProtocol):
         worms_data = []
         for client in self.clients:  # type: ConnectedClient
             if client.name != connectedClient.name:
-                worms_data.append(client.worm.getData(all=True))
+                worms_data.append(client.worm.getData(all=client.updateCompleteWorm))
 
         yourWorm = connectedClient.worm.getData(all=connectedClient.updateCompleteWorm)
         yourWorm[Worm.d_name] = 'you'

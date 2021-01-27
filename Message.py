@@ -10,6 +10,7 @@ class MesType(str, Enum):
     Input = 2
     Position = 3
     YouAreDeath = 4
+    NewEnemy = 5
 
 
 class Message:

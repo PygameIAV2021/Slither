@@ -39,7 +39,7 @@ class Game:
         self.run = True
 
     async def start_multiplayer(self) -> None:
-        """say hello to server, start the game loop and send inputs to the server"""
+        """called by the client. say hello to server, start the game loop and send inputs to the server"""
 
         self.iniPygame()
         message = Message(MesType.HelloServer, 'Guten Tag Server')
@@ -112,8 +112,16 @@ class Game:
 
     def move(self) -> None:
         """move only the main worm. only called on the client side"""
+        for worm in self.otherWorms:
+            if worm.movedByServer:
+                worm.movedByServer = False
+            else:
+                worm.move()
 
-        self.mainWorm.move()
+        if self.mainWorm.movedByServer:
+            self.mainWorm.movedByServer = False
+        else:
+            self.mainWorm.move()
 
     def draw(self) -> None:
         """draw the worms, foods and the background"""

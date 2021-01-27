@@ -29,6 +29,7 @@ class Worm:
         self.radius = defaultWorm['radius']
         self.halfScreen = (screen_resolution[0] / 2, screen_resolution[1] / 2)
         self.updatedByServer = False
+        self.movedByServer = False
 
         head = Circle(coord, self.radius, self.color, self.surface, self.angle, self.speed)
 
@@ -49,7 +50,7 @@ class Worm:
 
         for i in range(len(self.body) - 1, 0, -1):
 
-            if self.body[i].getDistanceToCenter(self.body[i - 1]) <= self.radius - 2:
+            if self.body[i].getDistanceToCenter(self.body[i - 1]) <= self.radius:
                 continue
                 # only move if the distance between the two circles is more then self.radius - 2
 
@@ -181,6 +182,7 @@ class Worm:
         self.speed = data[self.d_speed]
 
         if data[self.d_body] != -1:  # in some cases only the head is updated, the rest is calculated by the client self
+            self.movedByServer = True
             length = len(data[self.d_body])
             i = 0
             for c in self.body:
@@ -190,7 +192,7 @@ class Worm:
                 if length == 0:
                     break
 
-            if length > 0:
+            if length > 0:  # the worm has grown
                 circle = Circle(
                     coord=data[self.d_body][i][Circle.d_coord],
                     radius=data[self.d_body][i][Circle.d_radius],

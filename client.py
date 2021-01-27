@@ -55,6 +55,17 @@ class SlitherClient(WebSocketClientProtocol):
             self.updateWorms(wormData)
             self.updateFood(foodData)
 
+        elif mes.type == MesType.NewEnemy:
+            newWorm = Worm(
+                name=mes.mes[Worm.d_name],
+                coord=mes.mes[Worm.d_head],
+                color=mes.mes[Worm.d_color],
+                surface=self.game.surface
+            )
+            newWorm.updateByData(mes.mes)
+            print(f"new player joined! {newWorm.name}")
+            self.game.otherWorms.append(newWorm)
+
         elif mes.type == MesType.YouAreDeath:
             print(f"\nGAME OVER!\nYou were killed! Your score: {len(self.game.mainWorm.body)}")
             raise KeyboardInterrupt
@@ -85,7 +96,7 @@ class SlitherClient(WebSocketClientProtocol):
         for worm_d in wormData:
             if worm_d[Worm.d_name] == 'you':
                 self.game.mainWorm.updateByData(worm_d)
-                self.game.mainWorm.updatedByServer = True
+                #self.game.mainWorm.updatedByServer = True
             else:
                 exist = False
                 for w in self.game.otherWorms:  # type: Worm
@@ -95,6 +106,7 @@ class SlitherClient(WebSocketClientProtocol):
                         break
 
                 if not exist:
+                    print("this should never be happen!")
                     worm = Worm(
                         name=worm_d[Worm.d_name],
                         coord=worm_d[Worm.d_head],
@@ -102,9 +114,10 @@ class SlitherClient(WebSocketClientProtocol):
                         surface=self.game.surface
                     )
                     worm.updateByData(worm_d)
-                    worm.updatedByServer = True
+                    #worm.updatedByServer = True
                     self.game.otherWorms.append(worm)
 
+        # if a worm has not been updated by the server, then the client has disconnected -> remove worm from list
         for w in self.game.otherWorms:  # type: Worm
             if not w.updatedByServer:
                 self.game.otherWorms.remove(w)
@@ -136,6 +149,7 @@ class SlitherClient(WebSocketClientProtocol):
                 food.updatedByServer = True
                 foodHolder.append(food)
 
+        # if a food has not been updated by the server, it has been eaten
         for f in foodHolder:
             if not f.updatedByServer:
                 foodHolder.remove(f)
