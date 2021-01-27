@@ -90,8 +90,6 @@ class SlitherServer(WebSocketServerProtocol):
 
     def onConnect(self, request):
         print("Client connecting: {0}".format(request.peer))
-        if len(self.clients) >= settings.multiplayer_max_players:
-            self.sendClose(code=settings.ConnectionCodes.serverFull)
 
     def onOpen(self):
         print("WebSocket connection open.")
@@ -109,6 +107,10 @@ class SlitherServer(WebSocketServerProtocol):
 
         if message.type == MesType.HelloServer:
             if playerName not in self.clients:
+                if len(self.clients) >= settings.multiplayer_max_players:
+                    print("server is full! disconnect client")
+                    self.sendClose(code=settings.ConnectionCodes.serverFull)
+                    return
                 client = ConnectedClient(playerName, self)
                 self.clients.append(client)
                 print("create new worm for " + playerName)
@@ -140,6 +142,7 @@ class SlitherServer(WebSocketServerProtocol):
 
         else:
             print("unexpected message!")
+            self.sendClose(code=settings.ConnectionCodes.protocolError)
 
     def calc(self) -> None:
         """calculates the moves and collisions"""
