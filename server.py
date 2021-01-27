@@ -123,6 +123,9 @@ class SlitherServer(WebSocketServerProtocol):
 
             client.updateCompleteWorm = False
 
+            if client.worm.immortal > 0:
+                client.worm.immortal -= 1
+
             handleInput(message.mes, client)
 
             client.updated = True
@@ -245,8 +248,13 @@ class SlitherServer(WebSocketServerProtocol):
             The OnClose-event will trigger.
         """
 
+        if client.worm.immortal > 0:
+            return
+
         collision = False
         for opponentClient in self.clients:  # type: ConnectedClient
+            if opponentClient.worm.immortal > 0:
+                continue
             if opponentClient.name == client.name:
                 continue
             if collision:

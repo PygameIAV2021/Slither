@@ -30,6 +30,7 @@ class Worm:
         self.halfScreen = (screen_resolution[0] / 2, screen_resolution[1] / 2)
         self.updatedByServer = False
         self.movedByServer = False
+        self.immortal = 300  # the first 300 ticks the worm is immortal and cannot kill somebody else
 
         head = Circle(coord, self.radius, self.color, self.surface, self.angle, self.speed)
 
