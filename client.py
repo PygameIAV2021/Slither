@@ -43,6 +43,8 @@ class SlitherClient(WebSocketClientProtocol):
                 surface=self.game.surface
             )
 
+            self.game.mainWorm.updateByData(mes.mes)
+
         elif mes.type == MesType.Position:
             if settings.debug:
                 print(f"update position: {mes.mes}")
