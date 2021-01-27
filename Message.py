@@ -30,3 +30,10 @@ class Message:
 
         d = cbor.loads(data)
         return Message(d['t'], d['m'])
+
+
+class ConnectionCodes:
+    serverFull = 3001
+    clientClosedByUser = 3002
+    youWereKilled = 3003
+    protocolError = 3004

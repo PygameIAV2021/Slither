@@ -48,14 +48,6 @@ multiplayer_colors = [
 
 multiplayer_max_players = len(multiplayer_colors)
 
-
-class ConnectionCodes:
-    serverFull = 3001
-    clientClosedByUser = 3002
-    youGetKilled = 3003
-    protocolError = 3004
-
-
 if debug:
     screen_resolution = (1000, 800)
     defaultWorm['speed'] = 2

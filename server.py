@@ -1,5 +1,5 @@
 import asyncio
-from Message import Message, MesType
+from Message import Message, MesType, ConnectionCodes
 from worm import Worm
 from game import Game, InputStatus
 from food import foodHolder, addFood, Food
@@ -109,7 +109,7 @@ class SlitherServer(WebSocketServerProtocol):
             if playerName not in self.clients:
                 if len(self.clients) >= settings.multiplayer_max_players:
                     print("server is full! disconnect client")
-                    self.sendClose(code=settings.ConnectionCodes.serverFull)
+                    self.sendClose(code=ConnectionCodes.serverFull)
                     return
                 client = ConnectedClient(playerName, self)
                 self.clients.append(client)
@@ -142,7 +142,7 @@ class SlitherServer(WebSocketServerProtocol):
 
         else:
             print("unexpected message!")
-            self.sendClose(code=settings.ConnectionCodes.protocolError)
+            self.sendClose(code=ConnectionCodes.protocolError)
 
     def calc(self) -> None:
         """calculates the moves and collisions"""
@@ -205,11 +205,12 @@ class SlitherServer(WebSocketServerProtocol):
             Remove the client from the list and make his color available for new incoming connections.
         """
 
-        print("WebSocket connection closed {0}: code {1}".format(self.getClientName(), code))
         client = self.getClient(self.getClientName())
         if client:
             self.clients.remove(client)
             addRandomColor(client.worm.color)
+
+        print("WebSocket connection closed {0}: code {1}\t\t{2} players left".format(self.getClientName(), code, len(self.clients)))
 
         for c in self.clients:  # type: ConnectedClient
             if not c.updated:
@@ -256,7 +257,7 @@ class SlitherServer(WebSocketServerProtocol):
                     self.clients.remove(client)
                     mess = Message(MesType.YouAreDeath, {"killedBy": opponentClient.name})
                     client.ws.sendMess(mess)
-                    client.ws.sendClose(code=settings.ConnectionCodes.youGetKilled)
+                    client.ws.sendClose(code=ConnectionCodes.youWereKilled)
                     break
 
 

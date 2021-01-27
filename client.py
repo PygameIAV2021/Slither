@@ -4,7 +4,7 @@ from worm import Worm
 from food import Food, foodHolder
 import settings
 
-from Message import Message, MesType
+from Message import Message, MesType, ConnectionCodes
 
 from autobahn.asyncio.websocket import WebSocketClientProtocol, WebSocketClientFactory
 
@@ -54,6 +54,7 @@ class SlitherClient(WebSocketClientProtocol):
             self.updateFood(foodData)
 
         elif mes.type == MesType.YouAreDeath:
+            print(f"\nGAME OVER!\nYou were killed! Your score: {len(self.game.mainWorm.body)}")
             raise KeyboardInterrupt
         else:
             print(f"unexpected message! '{mes.type}'")
@@ -62,6 +63,13 @@ class SlitherClient(WebSocketClientProtocol):
 
     def onClose(self, wasClean, code, reason):
         print(f"WebSocket connection closed: {code}")
+        if code == ConnectionCodes.serverFull:
+            print(f"server is full! Try again later...")
+        elif code == ConnectionCodes.youWereKilled:
+            print(f"You were killed! Your score: {len(self.game.mainWorm.body)}")
+        elif code == ConnectionCodes.protocolError:
+            print(f"Protocol error. Perhaps you are running another version")
+
         raise KeyboardInterrupt
 
     def sendMess(self, message: Message) -> None:
