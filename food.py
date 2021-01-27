@@ -6,19 +6,6 @@ import math
 foodHolder = []
 
 
-def addFood(surface) -> None:
-    """creates a new food object an add it to the foodHolder-list"""
-
-    foodHolder.append(
-        Food(
-            coord=[randint(0, screen_resolution[0]), randint(0, screen_resolution[1])],
-            radius=10,
-            energy=2,
-            surface=surface
-        )
-    )
-
-
 class FoodType:
     """The class for the different kinds of food. Containing all types, colors and the effects"""
 
@@ -91,7 +78,7 @@ class Food(Circle):
     d_type = 6
     d_color = 7
 
-    def generateData(self) -> dict:
+    def getData(self) -> dict:
         """generates data of this food-object for the webSocket-client"""
 
         data = {
@@ -119,3 +106,17 @@ class Food(Circle):
         self.color = data[Food.d_color]
 
         self.updatedByServer = True
+
+
+def addFood(surface) -> Food:
+    """creates a new food object an add it to the foodHolder-list"""
+
+    newFood = Food(
+            coord=[randint(0, screen_resolution[0]), randint(0, screen_resolution[1])],
+            radius=10,
+            energy=2,
+            surface=surface
+        )
+    foodHolder.append(newFood)
+
+    return newFood

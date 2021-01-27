@@ -49,11 +49,30 @@ class SlitherClient(WebSocketClientProtocol):
             if settings.debug:
                 print(f"update position: {mes.mes}")
 
-            wormData = mes.mes['w']
-            foodData = mes.mes['f']
+            wormData = mes.mes
 
             self.updateWorms(wormData)
-            self.updateFood(foodData)
+
+        elif mes.type == MesType.NewFood:
+            newFood = Food(
+                mes.mes[Food.d_coord],
+                mes.mes[Food.d_radius],
+                mes.mes[Food.d_energy],
+                self.game.surface,
+                mes.mes[Food.d_angle],
+                mes.mes[Food.d_speed],
+                mes.mes[Food.d_id]
+            )
+            newFood.color = mes.mes[Food.d_color]
+            newFood.updatedByServer = True
+            foodHolder.append(newFood)
+
+        elif mes.type == MesType.DelFood:
+            for f in foodHolder:
+                if f.id == mes.mes:
+                    foodHolder.remove(f)
+                    del(f)
+                    break
 
         elif mes.type == MesType.NewEnemy:
             newWorm = Worm(
@@ -123,39 +142,6 @@ class SlitherClient(WebSocketClientProtocol):
                 self.game.otherWorms.remove(w)
             else:
                 w.updatedByServer = False
-
-    def updateFood(self, foodData: list) -> None:
-        """move food, create food or delete food"""
-
-        for food_d in foodData:
-
-            exist = False
-            for f in foodHolder:
-                if f.id == food_d[Food.d_id]:
-                    f.updateByData(food_d)
-                    exist = True
-
-            if not exist:
-
-                food = Food(
-                    food_d[Food.d_coord],
-                    food_d[Food.d_radius],
-                    food_d[Food.d_energy],
-                    self.game.surface,
-                    food_d[Food.d_angle],
-                    food_d[Food.d_speed],
-                    food_d[Food.d_id]
-                )
-                food.updatedByServer = True
-                foodHolder.append(food)
-
-        # if a food has not been updated by the server, it has been eaten
-        for f in foodHolder:
-            if not f.updatedByServer:
-                foodHolder.remove(f)
-                del f
-            else:
-                f.updatedByServer = False
 
 
 class Client:

@@ -52,24 +52,7 @@ class ConnectedClient:
 def generateFoodPositionData() -> list:
     """generate position data of all foods"""
 
-    return [f.generateData() for f in foodHolder]
-
-
-def checkCollisionWithFood(client: ConnectedClient):
-    """Check if the head of the worm of the client collide with a food.
-        If collision detected: call worm.eat and remove food from foodHolder-list.
-    """
-
-    head = client.worm.getHead()
-
-    for food in foodHolder:
-        if food.checkCollision(head):
-            client.worm.eat(food)
-            client.updateCompleteWorm = True
-            foodHolder.remove(food)
-            del food
-            break
-
+    return [f.getData() for f in foodHolder]
 
 def handleInput(cInput: int, client: ConnectedClient) -> None:
     """Handle the keyboard input from a client. Changes the angle of the worm"""
@@ -124,6 +107,9 @@ class SlitherServer(WebSocketServerProtocol):
                         # send the other worms to the connected client:
                         self.sendMess(Message(MesType.NewEnemy, c.worm.getData(all=True)))
 
+                for f in foodHolder:  # send all food objects to the new client
+                    self.sendMess(Message(MesType.NewFood, f.getData()))
+
                 answer = Message(MesType.HelloClient, wormData)
                 self.sendMess(answer)
 
@@ -162,21 +148,32 @@ class SlitherServer(WebSocketServerProtocol):
         for client in self.clients:
             client.worm.move()
 
-            checkCollisionWithFood(client)
+            self.checkCollisionWithFood(client)
 
         for client in self.clients:
             self.checkCollisionWithOtherWorm(client)
 
         if len(foodHolder) <= settings.maxNumberOfFood and random() > 0.97:
-            addFood(None)
+            food = addFood(None)
+            for client in self.clients:
+                client.ws.sendMess(Message(MesType.NewFood, food.getData()))
 
-    def generatePositionDataForPlayer(self, connectedClient: ConnectedClient) -> dict:
-        """generates the position-data for the message to the 'connectedClient'"""
+    def checkCollisionWithFood(self, client: ConnectedClient):
+        """Check if the head of the worm of the client collide with a food.
+            If collision detected: call worm.eat and remove food from foodHolder-list.
+        """
 
-        return {
-            'w': self.generateWormPositionData(connectedClient),
-            'f': generateFoodPositionData()
-        }
+        head = client.worm.getHead()
+
+        for food in foodHolder:
+            if food.checkCollision(head):
+                for c in self.clients:
+                    c.ws.sendMess(Message(MesType.DelFood, food.id))
+                client.worm.eat(food)
+                client.updateCompleteWorm = True
+                foodHolder.remove(food)
+                del food
+                break
 
     def generateWormPositionData(self, connectedClient: ConnectedClient) -> list:
         """generate position data of all worms for a specified client (connectedClient)"""
@@ -206,7 +203,7 @@ class SlitherServer(WebSocketServerProtocol):
             client.updated = False
 
         for client in self.clients:
-            answer = Message(MesType.Position, self.generatePositionDataForPlayer(client))
+            answer = Message(MesType.Position, self.generateWormPositionData(client))
             client.ws.sendMess(answer)
 
     def onClose(self, wasClean, code, reason) -> None:

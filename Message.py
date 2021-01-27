@@ -11,6 +11,8 @@ class MesType(str, Enum):
     Position = 3
     YouAreDeath = 4
     NewEnemy = 5
+    NewFood = 6
+    DelFood = 7
 
 
 class Message:

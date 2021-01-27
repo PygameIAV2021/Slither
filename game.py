@@ -111,7 +111,8 @@ class Game:
         return userInput
 
     def move(self) -> None:
-        """move only the main worm. only called on the client side"""
+        """only called on the client side"""
+
         for worm in self.otherWorms:
             if worm.movedByServer:
                 worm.movedByServer = False
@@ -122,6 +123,9 @@ class Game:
             self.mainWorm.movedByServer = False
         else:
             self.mainWorm.move()
+
+        for food in foodHolder:
+            food.move()
 
     def draw(self) -> None:
         """draw the worms, foods and the background"""
