@@ -112,9 +112,9 @@ pipenv install
 ODER, manuelle installation:
 
 ```shell
-pip install pygame
-pip install autobahn
-pip install cbor
+pip3 install pygame
+pip3 install autobahn
+pip3 install cbor
 ```
 
 ## Spiel Starten
