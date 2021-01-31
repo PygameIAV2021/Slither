@@ -31,12 +31,12 @@ Um das Spiel zu beenden einfach das Fenster schliesen.
 
 ## Verwendete Python Module
 
-### Externe Module, installiert mit `pip3`
+### Externe Module, installiert mit `pip3`:
 * `pygame`, Modul zur Spieleprogrammierung
-* `autobahn`.websocket, Websocket Modul für den Multiplayer
+* `autobahn`, Websocket Modul für den Multiplayer
 * `cbor`, binäres kompaktes Datenformat zur Serialisierung
 
-### Direkt aus Python verwendete Module
+### Direkt aus Python verwendete Module:
 * `math`, für Berechnungen
 * `asyncio`, required by autobahn
 * `random`, für einen Zufallsfaktor im Spiel
@@ -50,8 +50,8 @@ Um das Spiel zu beenden einfach das Fenster schliesen.
 Das Spiel ist objektorientiert programmiert. Folgende Klassen wurden erstellt:
 
 * #### Circle
-    * Alles was gezeichnet wird ist in diesem Spiel ein Kreis.
-    * Ein Objekt der Klasse kann sich selbst zeichen, bewegen und Kollisionen mit anderen Circle-Objekten erkennen.
+    * Alles was gezeichnet wird, ist in diesem Spiel ein Kreis.
+    * Ein Objekt der Klasse kann sich selbst Zeichen, Bewegen und Kollisionen mit anderen Circle-Objekten erkennen.
 * #### Food
     * Erbt von `Circle`.
     * Objekte bewegen sich zufällig im Spielfeld.
@@ -73,7 +73,7 @@ Das Spiel ist objektorientiert programmiert. Folgende Klassen wurden erstellt:
     * Enum.
     * Enthält die Nachrichten Typen für `Message`.
 * #### Message
-    * Nachricht zwischen.
+    * Nachricht zwischen Client und Server.
     * Wird serialisiert und per WebSocket übertragen.
 * #### Game
     * Kümmert sich um die richtige Ausführung und Reihenfolge der Nachrichten Sendungen, Berechnung und Zeichnung.
