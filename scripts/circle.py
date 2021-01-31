@@ -5,7 +5,7 @@ Created on Tue Nov 10 17:41:55 2020
 """
 
 import math
-from settings import screen_resolution
+from scripts.settings import screen_resolution
 
 
 class Circle:

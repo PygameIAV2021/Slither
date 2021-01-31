@@ -1,4 +1,4 @@
 from sys import argv
-from server import runServer
+from scripts.server import runServer
 
 runServer(argv)

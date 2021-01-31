@@ -1,11 +1,11 @@
 import asyncio
-from Message import Message, MesType, ConnectionCodes
-from worm import Worm
-from game import Game, InputStatus
-from food import foodHolder, addFood, Food
+from scripts.Message import Message, MesType, ConnectionCodes
+from scripts.worm import Worm
+from scripts.game import Game, InputStatus
+from scripts.food import foodHolder, addFood, Food
 from random import randint, random
-import settings as settings
-from circle import Circle
+import scripts.settings as settings
+from scripts.circle import Circle
 
 
 from autobahn.asyncio.websocket import WebSocketServerProtocol, WebSocketServerFactory

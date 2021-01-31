@@ -1,6 +1,6 @@
 import subprocess
 import time
-from client import Client
+from scripts.client import Client
 
 server = subprocess.Popen(["python3", "start_server.py", "9000"])
 

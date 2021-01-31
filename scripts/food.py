@@ -1,6 +1,6 @@
-from circle import Circle
+from scripts.circle import Circle
 from random import random, randint
-from settings import screen_resolution, food as default_food, food_type_factors
+from scripts.settings import screen_resolution, food as default_food, food_type_factors
 import math
 
 foodHolder = []

@@ -1,5 +1,5 @@
 from sys import argv
-from client import Client
+from scripts.client import Client
 
 print("\n\nFirst argument is the ip-address and second the port of the server.")
 print("For example: 'python3 start_multiplayer.py 192.168.178.13 9001'.")

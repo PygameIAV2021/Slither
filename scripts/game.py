@@ -1,8 +1,7 @@
 from math import pi, floor
-from food import foodHolder
-import settings
-
-from Message import Message, MesType
+from scripts.food import foodHolder
+import scripts.settings as settings
+from scripts.Message import Message, MesType
 import asyncio
 
 

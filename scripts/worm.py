@@ -4,12 +4,12 @@ Created on Tue Nov 10 17:28:45 2020
 @author: dustin
 """
 
-from circle import Circle
-from settings import defaultWorm
+from scripts.circle import Circle
+from scripts.settings import defaultWorm
 import math
 from random import random
-from settings import screen_resolution
-from food import FoodType, Food
+from scripts.settings import screen_resolution
+from scripts.food import FoodType, Food
 
 fullCircle = math.pi * 2
 

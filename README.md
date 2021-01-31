@@ -1,5 +1,5 @@
 # Slither
-![img.png](screenshot.png)
+![img.png](img/screenshot.png)
 ## Über das Spiel
 
 **Dies ist ein Schulprojekt der [Rudolf-Diesel-Fachschule Nürnberg](https://www.nuernberg.de/internet/rudolf_diesel_fachschule/).**
@@ -175,7 +175,7 @@ In einer neueren Version würde ich dieses Modell ändern, wahrscheinlich auf ei
 
 
 
-![img.png](serverClient.png)
+![img.png](img/serverClient.png)
 
 #### Aufgaben des Servers:
 * Clients registrieren und annehmen/ablehnen
