@@ -2,7 +2,8 @@
 ![img.png](screenshot.png)
 ## Über das Spiel
 
-Das ist ein Multiplayer Netzwerk Spiel bei den man einen Wurm steuert. Der Wurm kann sich in allen Richtungen (360 Grad) bewegen.
+**Dies ist ein Schulprojekt der [Rudolf-Diesel-Fachschule Nürnberg](https://www.nuernberg.de/internet/rudolf_diesel_fachschule/).**
+Ein Multiplayer Spiel über ein IP-Netzwerk bei den man einen Wurm steuert. Der Wurm kann sich in allen Richtungen (360 Grad) bewegen.
 Der eigene Wurm ist durch einen blauen Kopf gekennzeichnet.
 Durch Items kann er seine Größe und Geschwindigkeit verändern.
 Das Spielfeld hat keine echten Grenzen. Wenn sich ein Wurm auf eine Grenze zubewegt, erscheint er auf der anderen Seite des Spielfeldes.
@@ -14,7 +15,6 @@ Der Fokus ist Hauptsächlich auf den Multiplayer Modus gelegt.
 Wenn man ein Spiel beitritt, ist man für die Anfangszeit unsterblich, kann aber auch niemanden Schaden hinzufügen.
 
 ## Warum habe ich dieses Projekt programmiert?
-Dies ist ein Schulprojekt der Rudolf-Diesel-Fachschule Nürnberg. 
 Ich habe dieses Spiel gewählt, um die Möglichkeit zu bekommen, wie ein Echtzeit Multiplayer Game funktioniert.
 Auch wenn meine gewählte Lösung eine Simple ist, konnte ich daraus was lernen.
 
