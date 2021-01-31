@@ -100,16 +100,28 @@ Wird debug auf True gesetzt, läuft das Spiel deutlich langsamer und mehr debug 
 **Die Konfiguration sollte auf Client und Server identisch sein!**
 
 ## Installation:
-Ich habe dieses Spiel mit Python 3.8 entwickelt. 
+Ich habe dieses Spiel mit Python 3.8 entwickelt.
+
+Zuerst muss der Quellcode von Github heruntergeladen werden:
+
+```shell
+git clone https://github.com/PygameIAV2021/Slither.git
+```
+
+Danach in das Verzeichnis `Slither` wechseln:
+
+```shell
+cd Slither
+```
 
 Das Spiel benötigt ein paar Module welche geladen werden müssen.
-Wenn `pipenv` installiert ist, kann einfach folgendes innerhalb des Ordners ausführen:
+**Wenn `pipenv` installiert ist**, einfach folgendes ausführen:
 
 ```shell
 pipenv install
 ```
 
-ODER, manuelle installation:
+**ODER**, manuelle Installation:
 
 ```shell
 pip3 install pygame
@@ -169,7 +181,7 @@ In einer neueren Version würde ich dieses Modell ändern, wahrscheinlich auf ei
 * Clients registrieren und annehmen/ablehnen
 * Empfangen der Inputs der Clients
 * Kalkulation der Bewegungen und Kollisionen
-* Update der Positionen und co den Clients senden
+* Update der Positionen und Eigenschaften der zu zeichnenden Objekte an den Clients senden
 
 #### Aufgaben der Clients:
 * Verbindung mit Server aufbauen
