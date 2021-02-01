@@ -194,13 +194,15 @@ class Worm:
                     break
 
             if length > 0:  # the worm has grown
-                circle = Circle(
-                    coord=data[self.d_body][i][Circle.d_coord],
-                    radius=data[self.d_body][i][Circle.d_radius],
-                    color=data[self.d_body][i][Circle.d_color],
-                    surface=self.surface, angle=self.angle, speed=self.speed)
-                self.body.append(circle)
-                i += 1
+                while length > 0:
+                    circle = Circle(
+                        coord=data[self.d_body][i][Circle.d_coord],
+                        radius=data[self.d_body][i][Circle.d_radius],
+                        color=data[self.d_body][i][Circle.d_color],
+                        surface=self.surface, angle=self.angle, speed=self.speed)
+                    self.body.append(circle)
+                    i += 1
+                    length -= 1
 
         self.updatedByServer = True
 
