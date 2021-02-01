@@ -72,7 +72,6 @@ class Worm:
             angle = math.atan2(distance[1], distance[0])
             angle %= fullCircle
             self.body[i].move(angle)
-            self.body[i].handleOutOfScreen()
 
     def draw(self) -> None:
         """draw each circle in the body"""
