@@ -85,8 +85,8 @@ class Worm:
         coord = self.body[-1].coord
 
         coord = [
-             coord[0] - math.cos(self.angle) * self.radius / 2,
-             coord[1] - math.sin(self.angle) * self.radius / 2
+             coord[0] - math.cos(self.body[-1].angle) * self.radius / 2,
+             coord[1] - math.sin(self.body[-1].angle) * self.radius / 2
         ]
 
         circle = Circle(coord, self.radius, self.color, self.surface, self.angle, self.speed)
