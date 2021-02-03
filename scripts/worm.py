@@ -51,27 +51,28 @@ class Worm:
 
         for i in range(len(self.body) - 1, 0, -1):
 
-            if self.body[i].getDistanceToCenter(self.body[i - 1]) <= self.radius:
-                continue
+            loopCounter = 0
+            while self.body[i].getDistanceBetweenCenters(self.body[i - 1]) > self.radius and loopCounter < 8:
                 # only move if the distance between the two circles is more then self.radius - 2
+                loopCounter += 1
 
-            distance = [
-                self.body[i - 1].coord[0] - self.body[i].coord[0],
-                self.body[i - 1].coord[1] - self.body[i].coord[1]
-            ]
+                distance = [
+                    self.body[i - 1].coord[0] - self.body[i].coord[0],
+                    self.body[i - 1].coord[1] - self.body[i].coord[1]
+                ]
 
-            # if circle[i] is 'out of screen'/'other side', then make a correction for d.
-            # After that i have the correct angle
-            for axis in range(2):
-                if abs(distance[axis]) >= screen_resolution[axis] - self.body[i].diameter:
-                    if self.body[i - 1].coord[axis] > self.halfScreen[axis]:
-                        distance[axis] -= screen_resolution[axis]  # left or top out
-                    else:
-                        distance[axis] += screen_resolution[axis]  # right or bottom out
+                # if circle[i] is 'out of screen'/'other side', then make a correction for d.
+                # After that i have the correct angle
+                for axis in range(2):
+                    if abs(distance[axis]) >= screen_resolution[axis] - self.body[i].diameter:
+                        if self.body[i - 1].coord[axis] > self.halfScreen[axis]:
+                            distance[axis] -= screen_resolution[axis]  # left or top out
+                        else:
+                            distance[axis] += screen_resolution[axis]  # right or bottom out
 
-            angle = math.atan2(distance[1], distance[0])
-            angle %= fullCircle
-            self.body[i].move(angle)
+                angle = math.atan2(distance[1], distance[0])
+                angle %= fullCircle
+                self.body[i].move(angle)
 
     def draw(self) -> None:
         """draw each circle in the body"""
@@ -100,9 +101,9 @@ class Worm:
     def eat(self, food: Food) -> None:
         """Eat the passed food. Grow and do the effects"""
 
-        FoodType.doEffects(self, food.type)
         for i in range(1, food.energy):
             self.addBodyPart()
+        FoodType.doEffects(self, food.type)
 
     def updateSpeed(self, speedFactor: float) -> None:
         """Updates the speed of the worm. Each circle in body has to be updated"""
@@ -151,6 +152,7 @@ class Worm:
     d_speed = 3
     d_name = 4
     d_body = 5
+    d_radius = 6
 
     def getData(self, all=False) -> dict:
         """generates data of this worm-object for the webSocket-client"""
@@ -161,6 +163,7 @@ class Worm:
             self.d_angle: self.angle,
             self.d_speed: self.speed,
             self.d_name: self.name,
+            self.d_radius: self.radius,
             self.d_body: -1
         }
 
@@ -180,6 +183,7 @@ class Worm:
         self.angle = data[self.d_angle]
         self.color = data[self.d_color]
         self.speed = data[self.d_speed]
+        self.radius = data[self.d_radius]
 
         if data[self.d_body] != -1:  # in some cases only the head is updated, the rest is calculated by the client self
             self.movedByServer = True

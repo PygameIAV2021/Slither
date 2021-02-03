@@ -40,14 +40,14 @@ class Circle:
     def checkCollision(self, other_circle) -> bool:
         """checks if this circle-object collide with other_circle-object"""
 
-        return self.getDistanceBorder(other_circle) <= 0
+        return self.getDistanceBetweenBorders(other_circle) <= 0
 
-    def getDistanceBorder(self, other_circle) -> float:
+    def getDistanceBetweenBorders(self, other_circle) -> float:
         """returns the distance between the circle borders"""
 
-        return self.getDistanceToCenter(other_circle) - self.radius - other_circle.radius
+        return self.getDistanceBetweenCenters(other_circle) - self.radius - other_circle.radius
 
-    def getDistanceToCenter(self, other_circle) -> float:
+    def getDistanceBetweenCenters(self, other_circle) -> float:
         """returns the distance between the circle centers"""
 
         diffX = self.coord[0] - other_circle.coord[0]
@@ -80,7 +80,7 @@ class Circle:
         }
 
     def updateByData(self, data: dict, updateColor=True) -> None:
-        """update this food-object with the data provided by the webSocket-server"""
+        """update this circle-object with the data provided by the webSocket-server"""
 
         self.radius = data[self.d_radius]
         self.diameter = self.radius * 2
