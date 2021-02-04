@@ -6,8 +6,6 @@ from scripts.food import foodHolder, addFood, Food
 from random import randint, random
 import scripts.settings as settings
 from scripts.circle import Circle
-
-
 from autobahn.asyncio.websocket import WebSocketServerProtocol, WebSocketServerFactory
 
 
@@ -53,6 +51,7 @@ def generateFoodPositionData() -> list:
     """generate position data of all foods"""
 
     return [f.getData() for f in foodHolder]
+
 
 def handleInput(cInput: int, client: ConnectedClient) -> None:
     """Handle the keyboard input from a client. Changes the angle of the worm"""
@@ -146,11 +145,15 @@ class SlitherServer(WebSocketServerProtocol):
         """calculates the moves and collisions"""
 
         for f in foodHolder:  # type: Food
+            f.ttl -= 1
+            if f.ttl < 1:
+                foodHolder.remove(f)
+                del f
+                continue
             f.move()
 
         for client in self.clients:
             client.worm.move()
-
             self.checkCollisionWithFood(client)
 
         for client in self.clients:
@@ -219,7 +222,7 @@ class SlitherServer(WebSocketServerProtocol):
             self.clients.remove(client)
             addRandomColor(client.worm.color)
 
-        print("WebSocket connection closed {0}: code {1}\t\t{2} players left".format(self.getClientName(), code, len(self.clients)))
+        print(f"WebSocket connection closed {self.getClientName()}: code {code}\t\t{len(self.clients)} players left")
 
         for c in self.clients:  # type: ConnectedClient
             if not c.updated:

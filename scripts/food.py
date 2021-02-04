@@ -20,15 +20,20 @@ class FoodType:
 
         if foodType == FoodType.nothing:
             return 255, 255, 255  # white
-        elif foodType == FoodType.faster:
+        elif foodType == FoodType.faster or foodType == FoodType.slower:
             return 255, 0, 0  # red
-        elif foodType == FoodType.slower:
-            return 0, 0, 255  # blue
-        elif foodType == FoodType.bigger:
+        elif foodType == FoodType.bigger or foodType == FoodType.smaller:
             return (0, 255, 0) #green
-        elif foodType == FoodType.smaller:
-            return (255, 255,  0) # yellow
         return None
+
+    def getRadius(foodType):
+
+        if foodType == FoodType.nothing:
+            return 10
+        elif foodType == FoodType.faster or foodType == FoodType.bigger:
+            return 12
+        elif foodType == FoodType.slower or foodType == FoodType.smaller:
+            return 6
 
     def doEffects(worm, type) -> None:
         """Changes the worm attributes by the food-type"""
@@ -46,16 +51,17 @@ class FoodType:
 class Food(Circle):
     """Child class from Circle-class"""
 
-    def __init__(self, coord, radius, energy, surface, angle = 0, speed = default_food['speed'], id = None):
-        super().__init__(coord, radius, (0, 255, 0), surface, angle, speed)
+    def __init__(self, coord, energy, surface, angle = 0, speed = default_food['speed'], id = None):
+        super().__init__(coord, 1, (0, 255, 0), surface, angle, speed)
         self.energy = energy
         if self.angle == 0:
             self.angle = random() * 2*math.pi
         self.vector = []
         self.vector.append(math.cos(self.angle) * self.speed)
         self.vector.append(math.sin(self.angle) * self.speed)
+        self.ttl = 1000
 
-        if id == None:
+        if id is None:
             self.id = Food.id_counter
             Food.id_counter += 1
         else:
@@ -63,6 +69,7 @@ class Food(Circle):
 
         self.type = randint(0, food_type_factors['count'])
         self.color = FoodType.getColor(self.type)
+        self.radius = FoodType.getRadius(self.type)
 
         self.updatedByServer = False
 
@@ -77,6 +84,7 @@ class Food(Circle):
     d_id = 5
     d_type = 6
     d_color = 7
+    d_ttl = 8
 
     def getData(self) -> dict:
         """generates data of this food-object for the webSocket-client"""
@@ -89,7 +97,8 @@ class Food(Circle):
             Food.d_speed: self.speed,
             Food.d_id: self.id,
             Food.d_type: self.type,
-            Food.d_color: self.color
+            Food.d_color: self.color,
+            Food.d_ttl: self.ttl
         }
 
         return data
@@ -113,7 +122,6 @@ def addFood(surface) -> Food:
 
     newFood = Food(
             coord=[randint(0, screen_resolution[0]), randint(0, screen_resolution[1])],
-            radius=10,
             energy=2,
             surface=surface
         )

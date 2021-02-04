@@ -11,6 +11,15 @@ class InputStatus:
     d = 2
 
 
+def checkFoodTTL():
+    for f in foodHolder:  # type: Food
+        f.ttl -= 1
+        if f.ttl < 1:
+            foodHolder.remove(f)
+            del f
+            continue
+
+
 class Game:
     """The game class. For drawing and calculations"""
 
@@ -65,6 +74,7 @@ class Game:
 
             self.client.updatedByServer = False
 
+            checkFoodTTL()
             self.move()
             self.client.movedByServer = False
             self.draw()

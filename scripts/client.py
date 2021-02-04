@@ -55,7 +55,6 @@ class SlitherClient(WebSocketClientProtocol):
         elif mes.type == MesType.NewFood:
             newFood = Food(
                 mes.mes[Food.d_coord],
-                mes.mes[Food.d_radius],
                 mes.mes[Food.d_energy],
                 self.game.surface,
                 mes.mes[Food.d_angle],
@@ -63,6 +62,7 @@ class SlitherClient(WebSocketClientProtocol):
                 mes.mes[Food.d_id]
             )
             newFood.color = mes.mes[Food.d_color]
+            newFood.radius = mes.mes[Food.d_radius]
             newFood.updatedByServer = True
             foodHolder.append(newFood)
 
