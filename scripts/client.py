@@ -61,9 +61,8 @@ class SlitherClient(WebSocketClientProtocol):
                 mes.mes[Food.d_speed],
                 mes.mes[Food.d_id]
             )
-            newFood.color = mes.mes[Food.d_color]
-            newFood.radius = mes.mes[Food.d_radius]
-            newFood.updatedByServer = True
+
+            newFood.updateByData(mes.mes)
             foodHolder.append(newFood)
 
         elif mes.type == MesType.DelFood:

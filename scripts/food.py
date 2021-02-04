@@ -113,6 +113,7 @@ class Food(Circle):
         self.speed = data[Food.d_speed]
         self.type = data[Food.d_type]
         self.color = data[Food.d_color]
+        self.ttl = data[Food.d_ttl]
 
         self.updatedByServer = True
 
