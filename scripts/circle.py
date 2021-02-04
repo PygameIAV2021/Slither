@@ -30,12 +30,15 @@ class Circle:
         self.coord[1] += math.sin(self.angle) * self.speed
         self.handleOutOfScreen()
 
-    def draw(self) -> None:
+    def draw(self, drawBorder=False) -> None:
         """draw this circle. Uses the pygame.draw.circle"""
 
         import pygame.draw
         pygame.draw.circle(self.surface, self.color, (math.floor(self.coord[0]), math.floor(self.coord[1])),
                            self.radius)
+        if drawBorder:
+            pygame.draw.circle(self.surface, (0, 0, 0), (math.floor(self.coord[0]), math.floor(self.coord[1])),
+                               self.radius, 1)
 
     def checkCollision(self, other_circle) -> bool:
         """checks if this circle-object collide with other_circle-object"""

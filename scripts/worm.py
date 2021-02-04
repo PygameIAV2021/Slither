@@ -73,7 +73,7 @@ class Worm:
         """draw each circle in the body"""
 
         for circle in self.body[::-1]:
-            circle.draw()
+            circle.draw(drawBorder=True)
 
     def addBodyPart(self) -> None:
         """add an circle object at the end of the body"""
