@@ -51,28 +51,23 @@ class Worm:
 
         for i in range(len(self.body) - 1, 0, -1):
 
-            loopCounter = 0
-            while self.body[i].getDistanceBetweenCenters(self.body[i - 1]) > self.radius and loopCounter < 8:
-                # only move if the distance between the two circles is more then self.radius - 2
-                loopCounter += 1
+            distance = [
+                self.body[i - 1].coord[0] - self.body[i].coord[0],
+                self.body[i - 1].coord[1] - self.body[i].coord[1]
+            ]
 
-                distance = [
-                    self.body[i - 1].coord[0] - self.body[i].coord[0],
-                    self.body[i - 1].coord[1] - self.body[i].coord[1]
-                ]
+            # if circle[i] is 'out of screen'/'other side', then make a correction for distance.
+            # After that i have the correct angle
+            for axis in range(2):
+                if abs(distance[axis]) >= screen_resolution[axis] - self.body[i].diameter:
+                    if self.body[i - 1].coord[axis] > self.halfScreen[axis]:
+                        distance[axis] -= screen_resolution[axis]  # left or top out
+                    else:
+                        distance[axis] += screen_resolution[axis]  # right or bottom out
 
-                # if circle[i] is 'out of screen'/'other side', then make a correction for d.
-                # After that i have the correct angle
-                for axis in range(2):
-                    if abs(distance[axis]) >= screen_resolution[axis] - self.body[i].diameter:
-                        if self.body[i - 1].coord[axis] > self.halfScreen[axis]:
-                            distance[axis] -= screen_resolution[axis]  # left or top out
-                        else:
-                            distance[axis] += screen_resolution[axis]  # right or bottom out
-
-                angle = math.atan2(distance[1], distance[0])
-                angle %= fullCircle
-                self.body[i].move(angle)
+            angle = math.atan2(distance[1], distance[0])
+            angle %= fullCircle
+            self.body[i].move(angle)
 
     def draw(self) -> None:
         """draw each circle in the body"""
