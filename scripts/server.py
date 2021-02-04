@@ -279,7 +279,6 @@ class SlitherServer(WebSocketServerProtocol):
 
 
 def runServer(argv):
-
     def get_ip():
         """Returns the ip-address of the host"""
 

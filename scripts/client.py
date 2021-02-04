@@ -80,7 +80,7 @@ class SlitherClient(WebSocketClientProtocol):
                 surface=self.game.surface
             )
             newWorm.updateByData(mes.mes)
-            print(f"new player joined! {newWorm.name}")
+            print(f"new player joined!")
             self.game.otherWorms.append(newWorm)
 
         elif mes.type == MesType.YouAreDeath:
@@ -113,31 +113,17 @@ class SlitherClient(WebSocketClientProtocol):
         for worm_d in wormData:
             if worm_d[Worm.d_name] == 'you':
                 self.game.mainWorm.updateByData(worm_d)
-                #self.game.mainWorm.updatedByServer = True
             else:
-                exist = False
                 for w in self.game.otherWorms:  # type: Worm
                     if w.name == worm_d[Worm.d_name]:
                         w.updateByData(worm_d)
-                        exist = True
                         break
-
-                if not exist:
-                    print("this should never be happen!")
-                    worm = Worm(
-                        name=worm_d[Worm.d_name],
-                        coord=worm_d[Worm.d_head],
-                        color=worm_d[Worm.d_color],
-                        surface=self.game.surface
-                    )
-                    worm.updateByData(worm_d)
-                    #worm.updatedByServer = True
-                    self.game.otherWorms.append(worm)
 
         # if a worm has not been updated by the server, then the client has disconnected -> remove worm from list
         for w in self.game.otherWorms:  # type: Worm
             if not w.updatedByServer:
                 self.game.otherWorms.remove(w)
+                print(f"someone disconnected. His or her score: {len(w.body)}")
             else:
                 w.updatedByServer = False
 
