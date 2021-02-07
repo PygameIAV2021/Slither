@@ -95,13 +95,13 @@ class Game:
 
         changed = False
 
-        if pKeys[pygame.K_a] == 1:
+        if pKeys[pygame.K_a] or pKeys[pygame.K_LEFT]:
             userInput |= InputStatus.a
             self.mainWorm.angle -= settings.defaultWorm['turnAngle']
             changed = True
         elif userInput & InputStatus.a == InputStatus.a:
             userInput &= ~InputStatus.a
-        if pKeys[pygame.K_d] == 1:
+        if pKeys[pygame.K_d] or pKeys[pygame.K_RIGHT]:
             userInput |= InputStatus.d
             self.mainWorm.angle += settings.defaultWorm['turnAngle']
             changed = True
