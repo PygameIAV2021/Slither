@@ -2,7 +2,8 @@
 ![img.png](img/screenshot.png)
 ## Über das Spiel
 
-**Dies ist ein Schulprojekt der [Rudolf-Diesel-Fachschule Nürnberg](https://www.nuernberg.de/internet/rudolf_diesel_fachschule/).**
+**Dies ist ein Schulprojekt der [Rudolf-Diesel-Fachschule Nürnberg](https://www.nuernberg.de/internet/rudolf_diesel_fachschule/).** 
+Dementsprechend auch der Aufbau dieser readme.
 Ein Multiplayer Spiel über ein IP-Netzwerk bei den man einen Wurm steuert. Der Wurm kann sich in allen Richtungen (360 Grad) bewegen.
 Der eigene Wurm ist durch einen blauen Kopf gekennzeichnet.
 Durch Items kann er seine Größe und Geschwindigkeit verändern.
@@ -14,20 +15,34 @@ Der Fokus ist Hauptsächlich auf den Multiplayer Modus gelegt.
 Über ein IP-Netzwerk können sich Spieler auf einen Server verbinden und gegeneinander spielen.
 Wenn man ein Spiel beitritt, ist man für die Anfangszeit unsterblich, kann aber auch niemanden Schaden hinzufügen.
 
-## Warum habe ich dieses Projekt programmiert?
+### Warum habe ich dieses Projekt programmiert?
 Ich habe dieses Spiel gewählt, um die Möglichkeit zu bekommen, wie ein Echtzeit Multiplayer Game funktioniert.
 Auch wenn meine gewählte Lösung eine Simple ist, konnte ich daraus was lernen.
 
 
-## Steuerung
+### Steuerung
 
 Es gibt nur zwei relevante Tasten. 
 
-`A`: Drehung des Kopfes gegen den Uhrzeigersinn
+`A` oder `Arrow key left`: Drehung des Kopfes gegen den Uhrzeigersinn
 
-`D`: Drehung des Kopfes im Uhrzeigersinn
+`D` oder `Arrow key right`: Drehung des Kopfes im Uhrzeigersinn
 
-Um das Spiel zu beenden einfach das Fenster schliesen.
+Um das Spiel zu beenden, einfach das Fenster schließen.
+
+### Items / Food
+
+Damit der eigene Wurm wächst, müssen items mit dem Kopf des Wurmes berührt werden. 
+Jedes Item hat eine Lebenszeit, läuft diese ab bevor das Item gegessen worden ist, verschwindet es. 
+Dazu haben manche Items Nebeneffekte:
+
+* Weise Items: Keine Spezial Effekte.
+* Rote Items, Änderung der Geschwindigkeit des Wurms:
+  * Große rote Items: Wurm wird schneller
+  * Kleine rote Items: Wurm wird langsamer
+* Grüne Items, Änderung der Wurmgröße:
+  * Große grüne Items: Wurm wird größer
+  * Kleine grüne Items: Wurm wird kleiner
 
 ## Verwendete Python Module
 
