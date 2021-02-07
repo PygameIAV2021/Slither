@@ -3,6 +3,7 @@ from scripts.client import Client
 
 print("\n\nFirst argument is the ip-address and second the port of the server.")
 print("For example: 'python3 start_multiplayer.py 192.168.178.13 9001'.")
+print("Source: https://github.com/PygameIAV2021/Slither")
 
 
 ip = '127.0.0.1'

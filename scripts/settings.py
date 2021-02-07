@@ -46,7 +46,8 @@ multiplayer_colors = [
     (120, 30, 120)
 ]
 
-multiplayer_max_players = len(multiplayer_colors)
+#multiplayer_max_players = len(multiplayer_colors)
+multiplayer_max_players = 4
 
 if debug:
     screen_resolution = (1000, 800)
