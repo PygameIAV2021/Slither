@@ -40,9 +40,9 @@ Dazu haben manche Items Nebeneffekte:
 * Rote Items, Änderung der Geschwindigkeit des Wurms:
   * Große rote Items: Wurm wird schneller
   * Kleine rote Items: Wurm wird langsamer
-* Grüne Items, Änderung der Wurmgröße:
-  * Große grüne Items: Wurm wird größer
-  * Kleine grüne Items: Wurm wird kleiner
+* Grüne Items, Änderung der Wurmbreite:
+  * Große grüne Items: Wurm wird breiter
+  * Kleine grüne Items: Wurm wird dünner
 
 ## Verwendete Python Module
 
@@ -51,7 +51,7 @@ Dazu haben manche Items Nebeneffekte:
 * `autobahn`, Websocket Modul für den Multiplayer
 * `cbor`, binäres kompaktes Datenformat zur Serialisierung
 
-### Direkt aus Python verwendete Module:
+### Direkt aus `Python 3.8` verwendete Module:
 * `math`, für Berechnungen
 * `asyncio`, required by autobahn
 * `random`, für einen Zufallsfaktor im Spiel
@@ -190,7 +190,7 @@ In einer neueren Version würde ich dieses Modell ändern, wahrscheinlich auf ei
 
 
 
-![img.png](img/serverClient.png)
+![img.png](img/serverClient.svg)
 
 #### Aufgaben des Servers:
 * Clients registrieren und annehmen/ablehnen
